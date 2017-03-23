@@ -52,6 +52,7 @@ double t = 1.35*cos(theta[4])*sin(theta[2])*sin(theta[6]) - 0.0948*cos(theta[4])
 return t;
 }
 
+
 double Torque6(double theta[]){
  //calculate the torque value for w2
  // check with tony for the corosponding torque
