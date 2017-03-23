@@ -67,7 +67,7 @@ int main(int argc, char **argv)
   ros::Publisher left_cmd_pub = n.advertise<baxter_core_msgs::JointCommand>("/robot/limb/left/joint_command", 1);
   ros::Subscriber torque_subscriber = n.subscribe<sensor_msgs/JointState>("/robot/joint_states", 1,myCallback);
 
-   publish at at least 5 Hz, or else Baxter switches back to Position mode and holds position
+  // publish at at least 5 Hz, or else Baxter switches back to Position mode and holds position
   ros::Rate loop_rate(100);
   baxter_core_msgs::JointCommand cmd;
   sensor_msgs::JointState states;
@@ -102,13 +102,13 @@ int main(int argc, char **argv)
   
   //initial torque readings
   for(size_t i = 0; i < states.names.size(); i++){
-    states.effort[i] = 0.0; // get torque reading
-    ROS_INFO("Torque for joint %d = %d", i, states.effort[i]);
+    torque_real[i] =states.effort[i] ; // get torque reading
+    ROS_INFO("Torque for joint %d = %d", i, torque_real[i]);
 	}
   
   //fisrt pose------------------------------------------------------------------------------
   
-  theta[]=[0,0,0,0,0,0,0]; // theta[] = [s0,s1,eo,e1,w0,w1,w2]
+  theta[]={0,0,0,0,0,0,0}; // theta[] = [s0,s1,eo,e1,w0,w1,w2]
   
   //position command
   for(size_t i = 0; i < cmd.names.size(); i++){
@@ -116,23 +116,21 @@ int main(int argc, char **argv)
   }
 
   //calculate expected torque
-  torque_exp[] = [0,Torque1(theta[]),Torque1(theta[]),Torque2(theta[]),Torque3(theta[]),Torque4(theta[]),Torque5(theta[]),Torque6(theta[])];
+  torque_exp[] = {0,Torque1(theta[]),Torque2(theta[]),Torque3(theta[]),Torque4(theta[]),Torque5(theta[]),Torque6(theta[])};
 
   sleep(5);//wiat for movment completion
 
-  // get torque readings from baxter
+  // get torque readings from baxter and calculate the error
   for(size_t i = 0; i < states.names.size(); i++){
-    torque_real = states.effort[i]; //actual value
-    ROS_INFO("for joint %d: actual Torque  = %d, expected torque = %d", i, states.effort[i], torque_exp[i]);
+    torque_real[i] = states.effort[i]; //actual value
+    torque_err[i]= torque_real[i] - torque_exp[i];    // calculate torque error
+    ROS_INFO("for joint %d: actual Torque  = %d, expected torque = %d, Torque Error = &d", i, torque_real[i], torque_exp[i],torque_err[i]);
 	}
 
-  // calculate torque error
-  torque_err= torque_real[] - torque_exp[]; 
-  ROS_INFO("Torque Error = &d", torque_err[]);
   
   //second pose---------------------------------------------------------------------------
   
-  theta[]=[0.25,0.25,0.25,0.25,0.25,0.25,0.25]; // theta[] = [s0,s1,eo,e1,w0,w1,w2]
+  theta[]={0.25,0.25,0.25,0.25,0.25,0.25,0.25}; // theta[] = [s0,s1,eo,e1,w0,w1,w2]
   
   //position command
   for(size_t i = 0; i < cmd.names.size(); i++){
@@ -140,23 +138,21 @@ int main(int argc, char **argv)
   }
 
   //calculate expected torque
-  torque_exp[] = [0,Torque1(theta[]),Torque1(theta[]),Torque2(theta[]),Torque3(theta[]),Torque4(theta[]),Torque5(theta[]),Torque6(theta[])];
+  torque_exp[] = {0,Torque1(theta[]),Torque2(theta[]),Torque3(theta[]),Torque4(theta[]),Torque5(theta[]),Torque6(theta[])};
 
   sleep(5);//wiat for movment completion
 
-  // get torque readings from baxter
+  // get torque readings from baxter and calculate the error
   for(size_t i = 0; i < states.names.size(); i++){
-    torque_real = states.effort[i]; //actual value
-    ROS_INFO("for joint %d: actual Torque  = %d, expected torque = %d", i, states.effort[i], torque_exp[i]);
+    torque_real[i] = states.effort[i]; //actual value
+    torque_err[i]= torque_real[i] - torque_exp[i];    // calculate torque error
+    ROS_INFO("for joint %d: actual Torque  = %d, expected torque = %d, Torque Error = &d", i, torque_real[i], torque_exp[i],torque_err[i]);
 	}
 
-  // calculate torque error
-  torque_err= torque_real[] - torque_exp[]; 
-  ROS_INFO("Torque Error = &d", torque_err[]);
   
   //third pose---------------------------------------------------------------------------
   
-  theta[]=[0.5,0.5,0.5,0.5,0.5,0.5,0.5]; // theta[] = [s0,s1,eo,e1,w0,w1,w2]
+  theta[]={0.5,0.5,0.5,0.5,0.5,0.5,0.5}; // theta[] = [s0,s1,eo,e1,w0,w1,w2]
   
   //position command
   for(size_t i = 0; i < cmd.names.size(); i++){
@@ -164,25 +160,22 @@ int main(int argc, char **argv)
   }
 
   //calculate expected torque
-  torque_exp[] = [0,Torque1(theta[]),Torque1(theta[]),Torque2(theta[]),Torque3(theta[]),Torque4(theta[]),Torque5(theta[]),Torque6(theta[])];
+  torque_exp[] = {0,Torque1(theta[]),Torque2(theta[]),Torque3(theta[]),Torque4(theta[]),Torque5(theta[]),Torque6(theta[])};
 
   sleep(5);//wiat for movment completion
 
-  // get torque readings from baxter
+  // get torque readings from baxter and calculate the error
   for(size_t i = 0; i < states.names.size(); i++){
-    torque_real = states.effort[i]; //actual value
-    ROS_INFO("for joint %d: actual Torque  = %d, expected torque = %d", i, states.effort[i], torque_exp[i]);
+    torque_real[i] = states.effort[i]; //actual value
+    torque_err[i]= torque_real[i] - torque_exp[i];    // calculate torque error
+    ROS_INFO("for joint %d: actual Torque  = %d, expected torque = %d, Torque Error = &d", i, torque_real[i], torque_exp[i],torque_err[i]);
 	}
-
-  // calculate torque error
-  torque_err= torque_real[] - torque_exp[]; 
-  ROS_INFO("Torque Error = &d", torque_err[]);
 
 
 
   //fourth pose---------------------------------------------------------------------------
   
-  theta[]=[0.75,0.75,0.75,0.75,0.75,0.75,0.75]; // theta[] = [s0,s1,eo,e1,w0,w1,w2]
+  theta[]={0.75,0.75,0.75,0.75,0.75,0.75,0.75}; // theta[] = [s0,s1,eo,e1,w0,w1,w2]
   
   //position command
   for(size_t i = 0; i < cmd.names.size(); i++){
@@ -190,19 +183,18 @@ int main(int argc, char **argv)
   }
 
   //calculate expected torque
-  torque_exp[] = [0,Torque1(theta[]),Torque1(theta[]),Torque2(theta[]),Torque3(theta[]),Torque4(theta[]),Torque5(theta[]),Torque6(theta[])];
+  torque_exp[] = {0,Torque1(theta[]),Torque2(theta[]),Torque3(theta[]),Torque4(theta[]),Torque5(theta[]),Torque6(theta[])};
 
   sleep(5);//wiat for movment completion
 
-  // get torque readings from baxter
+  // get torque readings from baxter and calculat the error
   for(size_t i = 0; i < states.names.size(); i++){
-    torque_real = states.effort[i]; //actual value
-    ROS_INFO("for joint %d: actual Torque  = %d, expected torque = %d", i, states.effort[i], torque_exp[i]);
+    torque_real[i] = states.effort[i]; //actual value
+    torque_err[i]= torque_real[i] - torque_exp[i];    // calculate torque error
+    ROS_INFO("for joint %d: actual Torque  = %d, expected torque = %d, Torque Error = &d", i, torque_real[i], torque_exp[i],torque_err[i]);
 	}
 
-  // calculate torque error
-  torque_err= torque_real[] - torque_exp[]; 
-  ROS_INFO("Torque Error = &d", torque_err[]);
+
 
   //----------------------------------------------------------------------------------------
   std::cout<<cmd<<std::endl;
