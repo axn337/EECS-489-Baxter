@@ -77,7 +77,7 @@ int main(int argc, char **argv)
   ros::init(argc, argv, "torque_tracker");
   ros::NodeHandle n;
   ros::Publisher left_cmd_pub = n.advertise<baxter_core_msgs::JointCommand>("/robot/limb/left/joint_command", 1);
-  ros::Subscriber torque_subscriber = n.subscribe<sensor_msgs/JointState>("/robot/joint_states",1,myCallback);
+  ros::Subscriber torque_subscriber = n.subscribe<sensor_msgs::JointState>("/robot/joint_states",1,myCallback);
 
   // publish at at least 5 Hz, or else Baxter switches back to Position mode and holds position
   ros::Rate loop_rate(100);
