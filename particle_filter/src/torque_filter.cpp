@@ -15,7 +15,7 @@
 //current_particles will be an array of 1000 arrays of torques (each with length of num_joints)
 
 int g_num_particles = 1000;
-double g_importance_threshold = 0.5;
+double g_importance_threshold = 0.0002;
 std::vector<double> g_sensor_data ;
 bool g_collision_detected = false;
 
@@ -107,7 +107,6 @@ std::vector<double> state_transition_sampler(std::vector<double> action, std::ve
 
 	N.push_back(0.00509*sin(T7)*(sin(T5)*(sin(T2)*sin(T4) - 1.0*cos(T2)*cos(T3)*cos(T4)) - 1.0*cos(T2)*cos(T5)*sin(T3)) - 0.0273*sin(T7)*(cos(T6)*(cos(T5)*(sin(T2)*sin(T4) - 1.0*cos(T2)*cos(T3)*cos(T4)) + cos(T2)*sin(T3)*sin(T5)) + sin(T6)*(cos(T4)*sin(T2) + cos(T2)*cos(T3)*sin(T4))) - 0.0273*cos(T7)*(sin(T5)*(sin(T2)*sin(T4) - 1.0*cos(T2)*cos(T3)*cos(T4)) - 1.0*cos(T2)*cos(T5)*sin(T3)) - 0.00509*cos(T7)*(cos(T6)*(cos(T5)*(sin(T2)*sin(T4) - 1.0*cos(T2)*cos(T3)*cos(T4)) + cos(T2)*sin(T3)*sin(T5)) + sin(T6)*(cos(T4)*sin(T2) + cos(T2)*cos(T3)*sin(T4))));
 	
-	ROS_INFO("State Transition Sampler Location 6");
 
 	return N;
 }
@@ -115,20 +114,20 @@ std::vector<double> state_transition_sampler(std::vector<double> action, std::ve
 double importance_factor(std::vector<double> sensor_data, std::vector<double> state){
 	//calculates and returns the probability density of sensor_data if the robot is in state
 	
-	double standard_dev = 0.25;
+	double standard_dev = 1;
 	double mean = 0.0;
 	double weight = 1;
 	for (int i=0;i<7;i++) {
 		double error = sensor_data[i] - state[i];
-		ROS_INFO("sensor data %i = %f", i, sensor_data[i]);
-		ROS_INFO("state %i = %f", i, state[i]);
+		//ROS_INFO("sensor data %i = %f", i, sensor_data[i]);
+		//ROS_INFO("state %i = %f", i, state[i]);
 		double prob = normal_pdf(error,mean,standard_dev);
-		ROS_INFO("prob = %f", prob);
+		//ROS_INFO("prob = %f", prob);
 		if (i>=0) {
 		weight *= prob;
 		}
 	}
-	ROS_INFO("returning a weight of %f", weight);
+	//ROS_INFO("returning a weight of %f", weight);
 	return weight;
 }
 
@@ -167,14 +166,14 @@ void particle_filter(std::vector<std::vector<double> > &previous_particles, std:
 
 	}
 	
-	ROS_INFO("Paticle Filter Location 2");
+	//ROS_INFO("Paticle Filter Location 2");
 	
 	double sum_of_importances = 0.0;
 
 	for(int m = 0; m < g_num_particles; m++){
 		sum_of_importances += importance_factors[m];
 	}
-	ROS_INFO("Paticle Filter Location 3");
+	//ROS_INFO("Paticle Filter Location 3");
 
 	double cumulative_sum = 0.0;
 
@@ -191,7 +190,7 @@ void particle_filter(std::vector<std::vector<double> > &previous_particles, std:
 		g_collision_detected = true;
 	}
 	
-	ROS_INFO("Paticle Filter Location 4");
+	//ROS_INFO("Paticle Filter Location 4");
 
 	for(int m = 0; m < g_num_particles; m++){
 		//resampling step
@@ -209,7 +208,7 @@ void particle_filter(std::vector<std::vector<double> > &previous_particles, std:
 		}
 	}
 	
-	ROS_INFO("Paticle Filter Location 5");
+	//ROS_INFO("Paticle Filter Location 5");
 }
 
 int main(int argc, char **argv){
@@ -219,18 +218,18 @@ int main(int argc, char **argv){
 
 	ros::Publisher action_publisher = n.advertise<baxter_core_msgs::JointCommand>("/robot/limb/left/joint_command",1);
 	
-	ROS_INFO("Location 1");
+	//ROS_INFO("Location 1");
 
 	std::vector<std::vector<double> > current_particles;
 	std::vector<std::vector<double> > previous_particles;
 	
-	ROS_INFO("Location 2");
+	//ROS_INFO("Location 2");
 
 	ros::Rate loop_rate(100);
   	baxter_core_msgs::JointCommand cmd;
 	cmd.mode = baxter_core_msgs::JointCommand::POSITION_MODE;
 	
-	ROS_INFO("Location 2.1");
+	//ROS_INFO("Location 2.1");
 	
 	cmd.names.push_back("left_s0");
 	cmd.names.push_back("left_s1");
@@ -242,20 +241,20 @@ int main(int argc, char **argv){
       
 	cmd.command.resize(cmd.names.size());
       
-	ROS_INFO("Location 2.15");
+	//ROS_INFO("Location 2.15");
 	
 	//command an initial motion to 0, then wait
-	cmd.command[0] = -0.1;
-	cmd.command[1] = -0.1;
-	cmd.command[2] = -0.1;
-	cmd.command[3] = -0.1;
-	cmd.command[4] = -0.1;
-	cmd.command[5] = -0.1;
-	cmd.command[6] = -0.1;
+	cmd.command[0] = 0;
+	cmd.command[1] = 0;
+	cmd.command[2] = 0;
+	cmd.command[3] = 0;
+	cmd.command[4] = 0;
+	cmd.command[5] = 0;
+	cmd.command[6] = 0;
 	
 	std::cout<<cmd<<std::endl;
 
-	ROS_INFO("Location 2.2");
+	//ROS_INFO("Location 2.2");
 	
 	ros::Time begin = ros::Time::now();
 	
@@ -265,60 +264,69 @@ int main(int argc, char **argv){
 		ros::spinOnce();
 	}
 	
-	ROS_INFO("Location 3");
+	//ROS_INFO("Location 3");
 	
 	//initialize particles to match latest sensor data
 	for (int m = 0; m < g_num_particles; m++){
 		current_particles.push_back(g_sensor_data);
 	}
 
-	double current_joint_angle=-0.1;
+	double current_joint_angle=0;
 
 	std::vector<double> last_action;
 	
-	ROS_INFO("Location 4");
+	//ROS_INFO("Location 4");
 	
-	current_joint_angle += 0.1;
+	int counter = 0;
 	
 	while(ros::ok()){
+		
+		counter++;
+		
+		current_joint_angle += 0.05;
 		
 		last_action.clear();
 
 		//command next action
 		
 		for(int i = 0; i < 7; i++){
-	 		cmd.command[i] = current_joint_angle;
+			if(i != 2){
+				//cmd.command[i] = current_joint_angle;
+				if(!g_collision_detected){
+					double r = 0.6*(((double) rand() / (RAND_MAX)) - 0.5);//random joint angle from -0.5 to 0.5
+					cmd.command[i] = r;
+				}
+			}
 	  	}
-	  	
 	  	
     	ros::Time begin = ros::Time::now();
 	
-		while((ros::Time::now() - begin).toSec() < 1.0){
+		while((ros::Time::now() - begin).toSec() < 4.0){
 			action_publisher.publish(cmd);
 			loop_rate.sleep();
 			ros::spinOnce();
 			
 		}
 
-		ROS_INFO("Location 5");
+		//ROS_INFO("Location 5");
 
 		//convert action data type for use by particle_filter`
 		for(int i = 0; i < 7; i++){
 			last_action.push_back(cmd.command[i]);
 		}
 		
-		ROS_INFO("Location 5.1");
+		//ROS_INFO("Location 5.1");
 		
-		ROS_INFO("Location 5.2");
+		//ROS_INFO("Location 5.2");
 
 		//update particles
 		previous_particles = current_particles;
-		ROS_INFO("Location 5.3");
+		//ROS_INFO("Location 5.3");
 		current_particles.clear();
-		ROS_INFO("Location 5.4");
+		//ROS_INFO("Location 5.4");
 		particle_filter(previous_particles, last_action, g_sensor_data, current_particles);
 		
-		ROS_INFO("Location 6");
+		//ROS_INFO("Location 6");
 
 		//check for if a collision was detected
 			//if so, warn and break loop
@@ -326,7 +334,7 @@ int main(int argc, char **argv){
 			ROS_WARN("collision detected. breaking out of loop");
 			break;
 		}
-		if(current_joint_angle > 1){
+		if(counter > 10){
 			break;
 		}
 		
