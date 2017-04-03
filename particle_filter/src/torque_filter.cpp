@@ -34,6 +34,7 @@ void torque_callback(const baxter_core_msgs::SEAJointState message_holder){
 
 
 float normal_pdf(float x, float m, float s) {
+	// TODO: fix this
 	static const float inv_sqrt_2pi = 0.3989422804014327;
 	float a = (x - m)/s;
 	return inv_sqrt_2pi/s*std::exp(-0.5f * a * a);
@@ -93,14 +94,14 @@ std::vector<double> state_transition_sampler(std::vector<double> action, std::ve
 	N.push_back(0);
 	
 
-	N.push_back(28.6*sin(T2) - 10.2*cos(T2) - 0.989*cos(T7)*(sin(T6)*(cos(T2)*cos(T4) - 1.0*cos(T3)*sin(T2)*sin(T4)) + cos(T6)*(cos(T5)*(cos(T2)*sin(T4) + cos(T3)*cos(T4)*sin(T2)) - 1.0*sin(T2)*sin(T3)*sin(T5))) - 0.00509*cos(T7)*(sin(T5)*(cos(T2)*sin(T4) + cos(T3)*cos(T4)*sin(T2)) + cos(T5)*sin(T2)*sin(T3)) - 0.00509*sin(T7)*(sin(T6)*(cos(T2)*cos(T4) - 1.0*cos(T3)*sin(T2)*sin(T4)) + cos(T6)*(cos(T5)*(cos(T2)*sin(T4) + cos(T3)*cos(T4)*sin(T2)) - 1.0*sin(T2)*sin(T3)*sin(T5))) + 63.5*cos(T2)*(0.433*cos(T4) + 0.201*sin(T4) - 0.433) - 21.1*(cos(T5)*(cos(T2)*sin(T4) + cos(T3)*cos(T4)*sin(T2)) - 1.0*sin(T2)*sin(T3)*sin(T5))*(0.808*sin(T6) - 0.191*cos(T6) + 0.191) - 0.0273*sin(T7)*(sin(T5)*(cos(T2)*sin(T4) + cos(T3)*cos(T4)*sin(T2)) + cos(T5)*sin(T2)*sin(T3)) + 106.0*sin(T2)*(0.27*cos(T3) - 0.27) + 43.2*(0.201*cos(T5) - 0.201)*(cos(T2)*sin(T4) + cos(T3)*cos(T4)*sin(T2)) - 19.1*cos(T6)*(cos(T2)*cos(T4) - 1.0*cos(T3)*sin(T2)*sin(T4)) - 2.91*sin(T6)*(cos(T2)*cos(T4) - 1.0*cos(T3)*sin(T2)*sin(T4)) + 5.32*(0.191*cos(T7) - 0.191)*(sin(T6)*(cos(T2)*cos(T4) - 1.0*cos(T3)*sin(T2)*sin(T4)) + cos(T6)*(cos(T5)*(cos(T2)*sin(T4) + cos(T3)*cos(T4)*sin(T2)) - 1.0*sin(T2)*sin(T3)*sin(T5))) - 24.6*cos(T2)*cos(T4) - 2.91*cos(T6)*(cos(T5)*(cos(T2)*sin(T4) + cos(T3)*cos(T4)*sin(T2)) - 1.0*sin(T2)*sin(T3)*sin(T5)) - 5.06*cos(T3)*sin(T2) - 4.05*cos(T2)*sin(T4) + 19.1*sin(T6)*(cos(T5)*(cos(T2)*sin(T4) + cos(T3)*cos(T4)*sin(T2)) - 1.0*sin(T2)*sin(T3)*sin(T5)) - 1.32*cos(T5)*(cos(T2)*sin(T4) + cos(T3)*cos(T4)*sin(T2)) + 0.171*sin(T2)*sin(T3) + 21.1*(cos(T2)*cos(T4) - 1.0*cos(T3)*sin(T2)*sin(T4))*(0.808*cos(T6) + 0.191*sin(T6) - 0.808) - 0.196*sin(T5)*(cos(T2)*sin(T4) + cos(T3)*cos(T4)*sin(T2)) - 4.05*cos(T3)*cos(T4)*sin(T2) + 24.6*cos(T3)*sin(T2)*sin(T4) - 0.196*cos(T5)*sin(T2)*sin(T3) - 7.35*sin(T2)*sin(T3)*sin(T5) - 63.5*cos(T3)*sin(T2)*(0.433*sin(T4) - 0.201*cos(T4) + 0.201));
+	N.push_back(28.6*sin(T2) - 10.2*cos(T2) - 0.989*cos(T7)*(sin(T6)*(cos(T2)*cos(T4) - 1.0*cos(T3)*sin(T2)*sin(T4)) + cos(T6)*(cos(T5)*(cos(T2)*sin(T4) + cos(T3)*cos(T4)*sin(T2)) - 1.0*sin(T2)*sin(T3)*sin(T5))) - 0.00509*cos(T7)*(sin(T5)*(cos(T2)*sin(T4) + cos(T3)*cos(T4)*sin(T2)) + cos(T5)*sin(T2)*sin(T3)) - 0.00509*sin(T7)*(sin(T6)*(cos(T2)*cos(T4) - 1.0*cos(T3)*sin(T2)*sin(T4)) + cos(T6)*(cos(T5)*(cos(T2)*sin(T4) + cos(T3)*cos(T4)*sin(T2)) - 1.0*sin(T2)*sin(T3)*sin(T5))) + 63.5*cos(T2)*(0.433*cos(T4) + 0.201*sin(T4) - 0.433) - 21.1*(cos(T5)*(cos(T2)*sin(T4) + cos(T3)*cos(T4)*sin(T2)) - 1.0*sin(T2)*sin(T3)*sin(T5))*(0.808*sin(T6) - 0.191*cos(T6) + 0.191) - 0.0273*sin(T7)*(sin(T5)*(cos(T2)*sin(T4) + cos(T3)*cos(T4)*sin(T2)) + cos(T5)*sin(T2)*sin(T3)) + 106.0*sin(T2)*(0.27*cos(T3) - 0.27) + 43.2*(0.201*cos(T5) - 0.201)*(cos(T2)*sin(T4) + cos(T3)*cos(T4)*sin(T2)) - 19.1*cos(T6)*(cos(T2)*cos(T4) - 1.0*cos(T3)*sin(T2)*sin(T4)) - 2.91*sin(T6)*(cos(T2)*cos(T4) - 1.0*cos(T3)*sin(T2)*sin(T4)) + 5.32*(0.191*cos(T7) - 0.191)*(sin(T6)*(cos(T2)*cos(T4) - 1.0*cos(T3)*sin(T2)*sin(T4)) + cos(T6)*(cos(T5)*(cos(T2)*sin(T4) + cos(T3)*cos(T4)*sin(T2)) - 1.0*sin(T2)*sin(T3)*sin(T5))) - 24.3*cos(T2)*cos(T4) - 2.91*cos(T6)*(cos(T5)*(cos(T2)*sin(T4) + cos(T3)*cos(T4)*sin(T2)) - 1.0*sin(T2)*sin(T3)*sin(T5)) - 5.06*cos(T3)*sin(T2) - 4.05*cos(T2)*sin(T4) + 19.1*sin(T6)*(cos(T5)*(cos(T2)*sin(T4) + cos(T3)*cos(T4)*sin(T2)) - 1.0*sin(T2)*sin(T3)*sin(T5)) - 4.47*cos(T5)*(cos(T2)*sin(T4) + cos(T3)*cos(T4)*sin(T2)) + 0.171*sin(T2)*sin(T3) + 21.1*(cos(T2)*cos(T4) - 1.0*cos(T3)*sin(T2)*sin(T4))*(0.808*cos(T6) + 0.191*sin(T6) - 0.808) - 0.196*sin(T5)*(cos(T2)*sin(T4) + cos(T3)*cos(T4)*sin(T2)) - 4.05*cos(T3)*cos(T4)*sin(T2) + 24.3*cos(T3)*sin(T2)*sin(T4) - 0.196*cos(T5)*sin(T2)*sin(T3) - 4.21*sin(T2)*sin(T3)*sin(T5) - 63.5*cos(T3)*sin(T2)*(0.433*sin(T4) - 0.201*cos(T4) + 0.201));
 
 
-	N.push_back(0.00509*cos(T7)*(cos(T2)*cos(T3)*cos(T5) - 1.0*cos(T2)*cos(T4)*sin(T3)*sin(T5)) - 0.00509*sin(T7)*(cos(T6)*(cos(T2)*cos(T3)*sin(T5) + cos(T2)*cos(T4)*cos(T5)*sin(T3)) - 1.0*cos(T2)*sin(T3)*sin(T4)*sin(T6)) + 0.0273*sin(T7)*(cos(T2)*cos(T3)*cos(T5) - 1.0*cos(T2)*cos(T4)*sin(T3)*sin(T5)) - 2.91*cos(T6)*(cos(T2)*cos(T3)*sin(T5) + cos(T2)*cos(T4)*cos(T5)*sin(T3)) + 19.1*sin(T6)*(cos(T2)*cos(T3)*sin(T5) + cos(T2)*cos(T4)*cos(T5)*sin(T3)) - 21.1*(cos(T2)*cos(T3)*sin(T5) + cos(T2)*cos(T4)*cos(T5)*sin(T3))*(0.808*sin(T6) - 0.191*cos(T6) + 0.191) + 5.32*(0.191*cos(T7) - 0.191)*(cos(T6)*(cos(T2)*cos(T3)*sin(T5) + cos(T2)*cos(T4)*cos(T5)*sin(T3)) - 1.0*cos(T2)*sin(T3)*sin(T4)*sin(T6)) - 0.171*cos(T2)*cos(T3) + 23.5*cos(T2)*sin(T3) - 0.989*cos(T7)*(cos(T6)*(cos(T2)*cos(T3)*sin(T5) + cos(T2)*cos(T4)*cos(T5)*sin(T3)) - 1.0*cos(T2)*sin(T3)*sin(T4)*sin(T6)) + 0.196*cos(T2)*cos(T3)*cos(T5) - 4.05*cos(T2)*cos(T4)*sin(T3) + 7.35*cos(T2)*cos(T3)*sin(T5) + 24.6*cos(T2)*sin(T3)*sin(T4) - 63.5*cos(T2)*sin(T3)*(0.433*sin(T4) - 0.201*cos(T4) + 0.201) + 43.2*cos(T2)*cos(T4)*sin(T3)*(0.201*cos(T5) - 0.201) - 1.32*cos(T2)*cos(T4)*cos(T5)*sin(T3) - 0.196*cos(T2)*cos(T4)*sin(T3)*sin(T5) + 19.1*cos(T2)*cos(T6)*sin(T3)*sin(T4) + 2.91*cos(T2)*sin(T3)*sin(T4)*sin(T6) - 21.1*cos(T2)*sin(T3)*sin(T4)*(0.808*cos(T6) + 0.191*sin(T6) - 0.808));
+	N.push_back(0.00509*cos(T7)*(cos(T2)*cos(T3)*cos(T5) - 1.0*cos(T2)*cos(T4)*sin(T3)*sin(T5)) - 0.00509*sin(T7)*(cos(T6)*(cos(T2)*cos(T3)*sin(T5) + cos(T2)*cos(T4)*cos(T5)*sin(T3)) - 1.0*cos(T2)*sin(T3)*sin(T4)*sin(T6)) + 0.0273*sin(T7)*(cos(T2)*cos(T3)*cos(T5) - 1.0*cos(T2)*cos(T4)*sin(T3)*sin(T5)) - 2.91*cos(T6)*(cos(T2)*cos(T3)*sin(T5) + cos(T2)*cos(T4)*cos(T5)*sin(T3)) + 19.1*sin(T6)*(cos(T2)*cos(T3)*sin(T5) + cos(T2)*cos(T4)*cos(T5)*sin(T3)) - 21.1*(cos(T2)*cos(T3)*sin(T5) + cos(T2)*cos(T4)*cos(T5)*sin(T3))*(0.808*sin(T6) - 0.191*cos(T6) + 0.191) + 5.32*(0.191*cos(T7) - 0.191)*(cos(T6)*(cos(T2)*cos(T3)*sin(T5) + cos(T2)*cos(T4)*cos(T5)*sin(T3)) - 1.0*cos(T2)*sin(T3)*sin(T4)*sin(T6)) - 0.171*cos(T2)*cos(T3) + 23.5*cos(T2)*sin(T3) - 0.989*cos(T7)*(cos(T6)*(cos(T2)*cos(T3)*sin(T5) + cos(T2)*cos(T4)*cos(T5)*sin(T3)) - 1.0*cos(T2)*sin(T3)*sin(T4)*sin(T6)) + 0.196*cos(T2)*cos(T3)*cos(T5) - 4.05*cos(T2)*cos(T4)*sin(T3) + 4.21*cos(T2)*cos(T3)*sin(T5) + 24.3*cos(T2)*sin(T3)*sin(T4) - 63.5*cos(T2)*sin(T3)*(0.433*sin(T4) - 0.201*cos(T4) + 0.201) + 43.2*cos(T2)*cos(T4)*sin(T3)*(0.201*cos(T5) - 0.201) - 4.47*cos(T2)*cos(T4)*cos(T5)*sin(T3) - 0.196*cos(T2)*cos(T4)*sin(T3)*sin(T5) + 19.1*cos(T2)*cos(T6)*sin(T3)*sin(T4) + 2.91*cos(T2)*sin(T3)*sin(T4)*sin(T6) - 21.1*cos(T2)*sin(T3)*sin(T4)*(0.808*cos(T6) + 0.191*sin(T6) - 0.808));
 
-	N.push_back(0.989*cos(T7)*(sin(T6)*(sin(T2)*sin(T4) - 1.0*cos(T2)*cos(T3)*cos(T4)) - 1.0*cos(T5)*cos(T6)*(cos(T4)*sin(T2) + cos(T2)*cos(T3)*sin(T4))) - 5.32*(0.191*cos(T7) - 0.191)*(sin(T6)*(sin(T2)*sin(T4) - 1.0*cos(T2)*cos(T3)*cos(T4)) - 1.0*cos(T5)*cos(T6)*(cos(T4)*sin(T2) + cos(T2)*cos(T3)*sin(T4))) + 0.00509*sin(T7)*(sin(T6)*(sin(T2)*sin(T4) - 1.0*cos(T2)*cos(T3)*cos(T4)) - 1.0*cos(T5)*cos(T6)*(cos(T4)*sin(T2) + cos(T2)*cos(T3)*sin(T4))) + 43.2*(0.201*cos(T5) - 0.201)*(cos(T4)*sin(T2) + cos(T2)*cos(T3)*sin(T4)) + 19.1*cos(T6)*(sin(T2)*sin(T4) - 1.0*cos(T2)*cos(T3)*cos(T4)) + 2.91*sin(T6)*(sin(T2)*sin(T4) - 1.0*cos(T2)*cos(T3)*cos(T4)) + 63.5*sin(T2)*(0.201*cos(T4) - 0.433*sin(T4)) - 4.05*cos(T4)*sin(T2) - 1.32*cos(T5)*(cos(T4)*sin(T2) + cos(T2)*cos(T3)*sin(T4)) + 24.6*sin(T2)*sin(T4) - 21.1*(sin(T2)*sin(T4) - 1.0*cos(T2)*cos(T3)*cos(T4))*(0.808*cos(T6) + 0.191*sin(T6) - 0.808) - 0.196*sin(T5)*(cos(T4)*sin(T2) + cos(T2)*cos(T3)*sin(T4)) + 63.5*cos(T2)*cos(T3)*(0.433*cos(T4) + 0.201*sin(T4)) - 24.6*cos(T2)*cos(T3)*cos(T4) - 4.05*cos(T2)*cos(T3)*sin(T4) - 2.91*cos(T5)*cos(T6)*(cos(T4)*sin(T2) + cos(T2)*cos(T3)*sin(T4)) + 19.1*cos(T5)*sin(T6)*(cos(T4)*sin(T2) + cos(T2)*cos(T3)*sin(T4)) - 0.00509*cos(T7)*sin(T5)*(cos(T4)*sin(T2) + cos(T2)*cos(T3)*sin(T4)) - 0.0273*sin(T5)*sin(T7)*(cos(T4)*sin(T2) + cos(T2)*cos(T3)*sin(T4)) - 21.1*cos(T5)*(cos(T4)*sin(T2) + cos(T2)*cos(T3)*sin(T4))*(0.808*sin(T6) - 0.191*cos(T6) + 0.191));
+	N.push_back(0.989*cos(T7)*(sin(T6)*(sin(T2)*sin(T4) - 1.0*cos(T2)*cos(T3)*cos(T4)) - 1.0*cos(T5)*cos(T6)*(cos(T4)*sin(T2) + cos(T2)*cos(T3)*sin(T4))) - 5.32*(0.191*cos(T7) - 0.191)*(sin(T6)*(sin(T2)*sin(T4) - 1.0*cos(T2)*cos(T3)*cos(T4)) - 1.0*cos(T5)*cos(T6)*(cos(T4)*sin(T2) + cos(T2)*cos(T3)*sin(T4))) + 0.00509*sin(T7)*(sin(T6)*(sin(T2)*sin(T4) - 1.0*cos(T2)*cos(T3)*cos(T4)) - 1.0*cos(T5)*cos(T6)*(cos(T4)*sin(T2) + cos(T2)*cos(T3)*sin(T4))) + 43.2*(0.201*cos(T5) - 0.201)*(cos(T4)*sin(T2) + cos(T2)*cos(T3)*sin(T4)) + 19.1*cos(T6)*(sin(T2)*sin(T4) - 1.0*cos(T2)*cos(T3)*cos(T4)) + 2.91*sin(T6)*(sin(T2)*sin(T4) - 1.0*cos(T2)*cos(T3)*cos(T4)) + 63.5*sin(T2)*(0.201*cos(T4) - 0.433*sin(T4)) - 4.05*cos(T4)*sin(T2) - 4.47*cos(T5)*(cos(T4)*sin(T2) + cos(T2)*cos(T3)*sin(T4)) + 24.3*sin(T2)*sin(T4) - 21.1*(sin(T2)*sin(T4) - 1.0*cos(T2)*cos(T3)*cos(T4))*(0.808*cos(T6) + 0.191*sin(T6) - 0.808) - 0.196*sin(T5)*(cos(T4)*sin(T2) + cos(T2)*cos(T3)*sin(T4)) + 63.5*cos(T2)*cos(T3)*(0.433*cos(T4) + 0.201*sin(T4)) - 24.3*cos(T2)*cos(T3)*cos(T4) - 4.05*cos(T2)*cos(T3)*sin(T4) - 2.91*cos(T5)*cos(T6)*(cos(T4)*sin(T2) + cos(T2)*cos(T3)*sin(T4)) + 19.1*cos(T5)*sin(T6)*(cos(T4)*sin(T2) + cos(T2)*cos(T3)*sin(T4)) - 0.00509*cos(T7)*sin(T5)*(cos(T4)*sin(T2) + cos(T2)*cos(T3)*sin(T4)) - 0.0273*sin(T5)*sin(T7)*(cos(T4)*sin(T2) + cos(T2)*cos(T3)*sin(T4)) - 21.1*cos(T5)*(cos(T4)*sin(T2) + cos(T2)*cos(T3)*sin(T4))*(0.808*sin(T6) - 0.191*cos(T6) + 0.191));
 
-	N.push_back(2.91*cos(T6)*(sin(T5)*(sin(T2)*sin(T4) - 1.0*cos(T2)*cos(T3)*cos(T4)) - 1.0*cos(T2)*cos(T5)*sin(T3)) - 19.1*sin(T6)*(sin(T5)*(sin(T2)*sin(T4) - 1.0*cos(T2)*cos(T3)*cos(T4)) - 1.0*cos(T2)*cos(T5)*sin(T3)) - 0.196*cos(T5)*(sin(T2)*sin(T4) - 1.0*cos(T2)*cos(T3)*cos(T4)) - 7.35*sin(T5)*(sin(T2)*sin(T4) - 1.0*cos(T2)*cos(T3)*cos(T4)) - 0.00509*cos(T7)*(cos(T5)*(sin(T2)*sin(T4) - 1.0*cos(T2)*cos(T3)*cos(T4)) + cos(T2)*sin(T3)*sin(T5)) + 21.1*(sin(T5)*(sin(T2)*sin(T4) - 1.0*cos(T2)*cos(T3)*cos(T4)) - 1.0*cos(T2)*cos(T5)*sin(T3))*(0.808*sin(T6) - 0.191*cos(T6) + 0.191) - 0.0273*sin(T7)*(cos(T5)*(sin(T2)*sin(T4) - 1.0*cos(T2)*cos(T3)*cos(T4)) + cos(T2)*sin(T3)*sin(T5)) + 0.989*cos(T6)*cos(T7)*(sin(T5)*(sin(T2)*sin(T4) - 1.0*cos(T2)*cos(T3)*cos(T4)) - 1.0*cos(T2)*cos(T5)*sin(T3)) + 0.00509*cos(T6)*sin(T7)*(sin(T5)*(sin(T2)*sin(T4) - 1.0*cos(T2)*cos(T3)*cos(T4)) - 1.0*cos(T2)*cos(T5)*sin(T3)) + 7.35*cos(T2)*cos(T5)*sin(T3) - 0.196*cos(T2)*sin(T3)*sin(T5) - 5.32*cos(T6)*(sin(T5)*(sin(T2)*sin(T4) - 1.0*cos(T2)*cos(T3)*cos(T4)) - 1.0*cos(T2)*cos(T5)*sin(T3))*(0.191*cos(T7) - 0.191));
+	N.push_back(2.91*cos(T6)*(sin(T5)*(sin(T2)*sin(T4) - 1.0*cos(T2)*cos(T3)*cos(T4)) - 1.0*cos(T2)*cos(T5)*sin(T3)) - 19.1*sin(T6)*(sin(T5)*(sin(T2)*sin(T4) - 1.0*cos(T2)*cos(T3)*cos(T4)) - 1.0*cos(T2)*cos(T5)*sin(T3)) - 0.196*cos(T5)*(sin(T2)*sin(T4) - 1.0*cos(T2)*cos(T3)*cos(T4)) - 4.21*sin(T5)*(sin(T2)*sin(T4) - 1.0*cos(T2)*cos(T3)*cos(T4)) - 0.00509*cos(T7)*(cos(T5)*(sin(T2)*sin(T4) - 1.0*cos(T2)*cos(T3)*cos(T4)) + cos(T2)*sin(T3)*sin(T5)) + 21.1*(sin(T5)*(sin(T2)*sin(T4) - 1.0*cos(T2)*cos(T3)*cos(T4)) - 1.0*cos(T2)*cos(T5)*sin(T3))*(0.808*sin(T6) - 0.191*cos(T6) + 0.191) - 0.0273*sin(T7)*(cos(T5)*(sin(T2)*sin(T4) - 1.0*cos(T2)*cos(T3)*cos(T4)) + cos(T2)*sin(T3)*sin(T5)) + 0.989*cos(T6)*cos(T7)*(sin(T5)*(sin(T2)*sin(T4) - 1.0*cos(T2)*cos(T3)*cos(T4)) - 1.0*cos(T2)*cos(T5)*sin(T3)) + 0.00509*cos(T6)*sin(T7)*(sin(T5)*(sin(T2)*sin(T4) - 1.0*cos(T2)*cos(T3)*cos(T4)) - 1.0*cos(T2)*cos(T5)*sin(T3)) + 4.21*cos(T2)*cos(T5)*sin(T3) - 0.196*cos(T2)*sin(T3)*sin(T5) - 5.32*cos(T6)*(sin(T5)*(sin(T2)*sin(T4) - 1.0*cos(T2)*cos(T3)*cos(T4)) - 1.0*cos(T2)*cos(T5)*sin(T3))*(0.191*cos(T7) - 0.191));
 
 	N.push_back(0.00509*sin(T7)*(sin(T6)*(cos(T5)*(sin(T2)*sin(T4) - 1.0*cos(T2)*cos(T3)*cos(T4)) + cos(T2)*sin(T3)*sin(T5)) - 1.0*cos(T6)*(cos(T4)*sin(T2) + cos(T2)*cos(T3)*sin(T4))) - 21.1*(0.808*cos(T6) + 0.191*sin(T6))*(cos(T5)*(sin(T2)*sin(T4) - 1.0*cos(T2)*cos(T3)*cos(T4)) + cos(T2)*sin(T3)*sin(T5)) - 5.32*(0.191*cos(T7) - 0.191)*(sin(T6)*(cos(T5)*(sin(T2)*sin(T4) - 1.0*cos(T2)*cos(T3)*cos(T4)) + cos(T2)*sin(T3)*sin(T5)) - 1.0*cos(T6)*(cos(T4)*sin(T2) + cos(T2)*cos(T3)*sin(T4))) + 19.1*cos(T6)*(cos(T5)*(sin(T2)*sin(T4) - 1.0*cos(T2)*cos(T3)*cos(T4)) + cos(T2)*sin(T3)*sin(T5)) + 21.1*(0.191*cos(T6) - 0.808*sin(T6))*(cos(T4)*sin(T2) + cos(T2)*cos(T3)*sin(T4)) + 2.91*sin(T6)*(cos(T5)*(sin(T2)*sin(T4) - 1.0*cos(T2)*cos(T3)*cos(T4)) + cos(T2)*sin(T3)*sin(T5)) - 2.91*cos(T6)*(cos(T4)*sin(T2) + cos(T2)*cos(T3)*sin(T4)) + 0.989*cos(T7)*(sin(T6)*(cos(T5)*(sin(T2)*sin(T4) - 1.0*cos(T2)*cos(T3)*cos(T4)) + cos(T2)*sin(T3)*sin(T5)) - 1.0*cos(T6)*(cos(T4)*sin(T2) + cos(T2)*cos(T3)*sin(T4))) + 19.1*sin(T6)*(cos(T4)*sin(T2) + cos(T2)*cos(T3)*sin(T4)));
 
@@ -114,7 +115,7 @@ std::vector<double> state_transition_sampler(std::vector<double> action, std::ve
 double importance_factor(std::vector<double> sensor_data, std::vector<double> state){
 	//calculates and returns the probability density of sensor_data if the robot is in state
 	
-	double standard_dev = 0.5;
+	double standard_dev = 0.25;
 	double mean = 0.0;
 	double weight = 1;
 	for (int i=0;i<7;i++) {
@@ -123,7 +124,7 @@ double importance_factor(std::vector<double> sensor_data, std::vector<double> st
 		ROS_INFO("state %i = %f", i, state[i]);
 		double prob = normal_pdf(error,mean,standard_dev);
 		ROS_INFO("prob = %f", prob);
-		if (i>4) {
+		if (i>=0) {
 		weight *= prob;
 		}
 	}
@@ -244,13 +245,13 @@ int main(int argc, char **argv){
 	ROS_INFO("Location 2.15");
 	
 	//command an initial motion to 0, then wait
-	cmd.command[0] = 0;
-	cmd.command[1] = 0;
-	cmd.command[2] = 0;
-	cmd.command[3] = 0;
-	cmd.command[4] = 0;
-	cmd.command[5] = 0;
-	cmd.command[6] = 0;
+	cmd.command[0] = -0.1;
+	cmd.command[1] = -0.1;
+	cmd.command[2] = -0.1;
+	cmd.command[3] = -0.1;
+	cmd.command[4] = -0.1;
+	cmd.command[5] = -0.1;
+	cmd.command[6] = -0.1;
 	
 	std::cout<<cmd<<std::endl;
 
@@ -271,21 +272,24 @@ int main(int argc, char **argv){
 		current_particles.push_back(g_sensor_data);
 	}
 
-	double current_joint_angle=0;
+	double current_joint_angle=-0.1;
 
 	std::vector<double> last_action;
 	
 	ROS_INFO("Location 4");
+	
+	current_joint_angle += 0.1;
 	
 	while(ros::ok()){
 		
 		last_action.clear();
 
 		//command next action
-		current_joint_angle += 0.1;
-		for(int i = 5; i < 7; i++){
+		
+		for(int i = 0; i < 7; i++){
 	 		cmd.command[i] = current_joint_angle;
 	  	}
+	  	
 	  	
     	ros::Time begin = ros::Time::now();
 	
@@ -293,6 +297,7 @@ int main(int argc, char **argv){
 			action_publisher.publish(cmd);
 			loop_rate.sleep();
 			ros::spinOnce();
+			
 		}
 
 		ROS_INFO("Location 5");
@@ -324,6 +329,7 @@ int main(int argc, char **argv){
 		if(current_joint_angle > 1){
 			break;
 		}
+		
 	}
 	
 	return 0;
