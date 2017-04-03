@@ -6,7 +6,7 @@ int main(int argc, char **argv)
   ros::NodeHandle n;
   ros::Publisher left_cmd_pub = n.advertise<baxter_core_msgs::JointCommand>("/robot/limb/left/joint_command", 1);
   // publish at at least 5 Hz, or else Baxter switches back to Position mode and holds position
-  ros::Rate loop_rate(100);
+  ros::Rate loop_rate(0.2);
   baxter_core_msgs::JointCommand cmd;
   // command in velocity mode
   cmd.mode = baxter_core_msgs::JointCommand::POSITION_MODE;
@@ -21,11 +21,12 @@ int main(int argc, char **argv)
   // set your calculated velocities
   cmd.command.resize(cmd.names.size());
   for(size_t i = 0; i < cmd.names.size(); i++)
-    cmd.command[i] = 0.0;
+    cmd.command[i] = 0.1;
   std::cout<<cmd<<std::endl;
   while(ros::ok()){
     //update cmd.command commands here
     left_cmd_pub.publish(cmd);
+
     ros::spinOnce();
     loop_rate.sleep();
   }
