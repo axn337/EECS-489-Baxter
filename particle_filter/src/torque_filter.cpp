@@ -1,29 +1,29 @@
+//basic include statements for interfacing with ROS and Baxter
 #include<ros/ros.h>
 #include "baxter_core_msgs/JointCommand.h"
 #include<std_msgs/Float64.h>
 #include<baxter_core_msgs/SEAJointState.h>
 
+//include statements for special functionality used
 #include <iostream>
 #include <iomanip>
 #include <string>
 #include <map>
-//#include <random>
 #include <boost/random.hpp>
 #include <boost/random/normal_distribution.hpp>
 
-//int g_num_particles will be 1000 to start
-//current_particles will be an array of 1000 arrays of torques (each with length of num_joints)
+//useful global variables:
+int g_num_particles = 1000;//the number of particles maintained by the filter
 
-int g_num_particles = 1000;
 double g_importance_threshold = 0.0002;
-std::vector<double> g_sensor_data ;
-bool g_collision_detected = false;
+//a tunable parameter to determine how sensitive to collsions baxter is.
+//higher makes baxter more likely to report a collision
 
-/*
-useful stuff to copy/paste:
---------------------------
-std::vector<std::vector<double>> current_particles;
-*/
+//the most recent set of torques reported by baxter
+std::vector<double> g_sensor_data ;
+
+//a global variable for collision reporting
+bool g_collision_detected = false;
 
 void torque_callback(const baxter_core_msgs::SEAJointState message_holder){
 	g_sensor_data.clear();
