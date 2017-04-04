@@ -1,8 +1,8 @@
 # particle_filter
 
-Your description goes here
-
-## Example usage
+Maintains a particle filter which estimates the torque state that a rethink baxter should experience.
 
 ## Running tests/demos
+
+Run this code under a ROSCORE belonging to a Rethink Robotics Baxter.
     
