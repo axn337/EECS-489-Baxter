@@ -33,15 +33,14 @@ void torque_callback(const baxter_core_msgs::SEAJointState message_holder){
 	}
 }
 
-
+//returns the gaussian density at x for a gaussian with mean m and standard deviation s
 float normal_pdf(float x, float m, float s) {
-	// TODO: fix this
 	static const float inv_sqrt_2pi = 0.3989422804014327;
 	float a = (x - m)/s;
 	return inv_sqrt_2pi/s*std::exp(-0.5f * a * a);
 }
 
-
+//rejection sampler
 double normal_distribution_sampler(float mean, float standard_dev) {
 	
 	double max_prob = (double) normal_pdf(mean, mean, standard_dev);
@@ -67,6 +66,9 @@ double normal_distribution_sampler(float mean, float standard_dev) {
 	return r2;
 }
 
+//samples a new state, given an old state and an action taken
+//for this application, the output is actually independent of the previous state
+//this function would be more meaningful if it had been practical to model the torques on a moving Baxter
 std::vector<double> state_transition_sampler(std::vector<double> action, std::vector<double> prev_state){
 	//use the rejection sampling technique to get a new sample state
 	double T1 = action[0];
@@ -112,6 +114,7 @@ std::vector<double> state_transition_sampler(std::vector<double> action, std::ve
 	return N;
 }
 
+//calculates probability of sensor_data, given that the roboti is in "state"
 double importance_factor(std::vector<double> sensor_data, std::vector<double> state){
 	//calculates and returns the probability density of sensor_data if the robot is in state
 	
@@ -132,7 +135,7 @@ double importance_factor(std::vector<double> sensor_data, std::vector<double> st
 	return weight;
 }
 
-
+//the primary particle filter function. modelled after the pseudocode presented in lecture
 void particle_filter(std::vector<std::vector<double> > &previous_particles, std::vector<double> action, std::vector<double> sensor_data , std::vector<std::vector<double> > &current_particles){
 	//calculates new particles, places them in the container "current_particles"
 
@@ -147,8 +150,7 @@ void particle_filter(std::vector<std::vector<double> > &previous_particles, std:
 	std::vector<double> importance_factors;
 	//positions 0-6 are the features of the state associated with the particle, while position 7 is the importance factor of that particle
 	
-	ROS_INFO("Paticle Filter Location 1");
-	
+	//generate new particles
 	for(int m = 0; m < g_num_particles; m++){
 
 		//select a random particle from the previous set
@@ -167,23 +169,13 @@ void particle_filter(std::vector<std::vector<double> > &previous_particles, std:
 
 	}
 	
-	//ROS_INFO("Paticle Filter Location 2");
-	
+	//perform some calculations to check for consistency between actual torques and predicted torques
 	double sum_of_importances = 0.0;
-
 	for(int m = 0; m < g_num_particles; m++){
 		sum_of_importances += importance_factors[m];
 	}
-	//ROS_INFO("Paticle Filter Location 3");
 
-	double cumulative_sum = 0.0;
-
-	for(int m = 0; m < g_num_particles; m++){
-		importance_factors[m] /= sum_of_importances;
-		cumulative_sum += importance_factors[m];
-		importance_factors[m] = cumulative_sum;
-	}
-
+	//perform collision detection based on the average likelihood of an obeservation given some sensor data
 	if ((sum_of_importances / g_num_particles) < g_importance_threshold){
 		//collision inferred
 		ROS_INFO("possible collision detected");
@@ -191,11 +183,17 @@ void particle_filter(std::vector<std::vector<double> > &previous_particles, std:
 		g_collision_detected = true;
 	}
 	
-	//ROS_INFO("Paticle Filter Location 4");
-
+	//set up a useful index for the resampling step
+	double cumulative_sum = 0.0;
 	for(int m = 0; m < g_num_particles; m++){
-		//resampling step
+		importance_factors[m] /= sum_of_importances;
+		cumulative_sum += importance_factors[m];
+		importance_factors[m] = cumulative_sum;
+	}
 
+	//resampling step
+	for(int m = 0; m < g_num_particles; m++){
+		
 		//generate random number from 0 to 1
 		double r = ((double) rand() / (RAND_MAX));
 		
