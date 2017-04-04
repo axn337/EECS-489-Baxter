@@ -210,25 +210,25 @@ void particle_filter(std::vector<std::vector<double> > &previous_particles, std:
 	//ROS_INFO("Paticle Filter Location 5");
 }
 
+//generates random arm motions in Baxter and runs the particle filter as a collision detector and "emergency stop"
 int main(int argc, char **argv){
+	
+	//basic ROS setup for communications with baxter
 	ros::init(argc, argv, "particle_filter");
 	ros::NodeHandle n;
+	
+	//for receiving sensor data
 	ros::Subscriber effort_subscriber = n.subscribe("/robot/limb/left/gravity_compensation_torques", 1, torque_callback);
 
+	//for sending commands
 	ros::Publisher action_publisher = n.advertise<baxter_core_msgs::JointCommand>("/robot/limb/left/joint_command",1);
-	
-	//ROS_INFO("Location 1");
 
 	std::vector<std::vector<double> > current_particles;
 	std::vector<std::vector<double> > previous_particles;
-	
-	//ROS_INFO("Location 2");
 
 	ros::Rate loop_rate(100);
   	baxter_core_msgs::JointCommand cmd;
 	cmd.mode = baxter_core_msgs::JointCommand::POSITION_MODE;
-	
-	//ROS_INFO("Location 2.1");
 	
 	cmd.names.push_back("left_s0");
 	cmd.names.push_back("left_s1");
@@ -239,10 +239,8 @@ int main(int argc, char **argv){
 	cmd.names.push_back("left_w2");
       
 	cmd.command.resize(cmd.names.size());
-      
-	//ROS_INFO("Location 2.15");
 	
-	//command an initial motion to 0, then wait
+	//command an initial motion to 0, then wait 5 seconds
 	cmd.command[0] = 0;
 	cmd.command[1] = 0;
 	cmd.command[2] = 0;
@@ -252,8 +250,6 @@ int main(int argc, char **argv){
 	cmd.command[6] = 0;
 	
 	std::cout<<cmd<<std::endl;
-
-	//ROS_INFO("Location 2.2");
 	
 	ros::Time begin = ros::Time::now();
 	
@@ -263,41 +259,41 @@ int main(int argc, char **argv){
 		ros::spinOnce();
 	}
 	
-	//ROS_INFO("Location 3");
 	
 	//initialize particles to match latest sensor data
 	for (int m = 0; m < g_num_particles; m++){
 		current_particles.push_back(g_sensor_data);
 	}
 
+	//an alternative way to generate arm motions. not in use
 	double current_joint_angle=0;
 
 	std::vector<double> last_action;
 	
-	//ROS_INFO("Location 4");
-	
 	int counter = 0;
 	
+	//the main loop for motion commands
 	while(ros::ok()){
 		
+		//maintain and reset loop variables as needed
 		counter++;
-		
 		current_joint_angle += 0.05;
-		
 		last_action.clear();
 
 		//command next action
 		
 		for(int i = 0; i < 7; i++){
-			if(i != 2){
+			if(i != 2){//don't move joint 2, it is too unreliable
 				//cmd.command[i] = current_joint_angle;
 				if(!g_collision_detected){
+					//make a random movement within a certain range
 					double r = 0.6*(((double) rand() / (RAND_MAX)) - 0.5);//random joint angle from -0.5 to 0.5
 					cmd.command[i] = r;
 				}
 			}
 	  	}
 	  	
+	//give the action 4 seconds to complete and stop oscillating	
     	ros::Time begin = ros::Time::now();
 	
 		while((ros::Time::now() - begin).toSec() < 4.0){
@@ -307,25 +303,15 @@ int main(int argc, char **argv){
 			
 		}
 
-		//ROS_INFO("Location 5");
-
 		//convert action data type for use by particle_filter`
 		for(int i = 0; i < 7; i++){
 			last_action.push_back(cmd.command[i]);
 		}
-		
-		//ROS_INFO("Location 5.1");
-		
-		//ROS_INFO("Location 5.2");
 
 		//update particles
 		previous_particles = current_particles;
-		//ROS_INFO("Location 5.3");
 		current_particles.clear();
-		//ROS_INFO("Location 5.4");
 		particle_filter(previous_particles, last_action, g_sensor_data, current_particles);
-		
-		//ROS_INFO("Location 6");
 
 		//check for if a collision was detected
 			//if so, warn and break loop
