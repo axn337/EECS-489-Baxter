@@ -25,6 +25,7 @@ std::vector<double> g_sensor_data ;
 //a global variable for collision reporting
 bool g_collision_detected = false;
 
+//this is ROS code to maintain the latest data from Baxter
 void torque_callback(const baxter_core_msgs::SEAJointState message_holder){
 	g_sensor_data.clear();
 	for(int i =0; i < 7; i++){
