@@ -20,12 +20,20 @@ int main(int argc, char **argv)
   cmd.names.push_back("left_w2");
   // set your calculated velocities
   cmd.command.resize(cmd.names.size());
-  for(size_t i = 0; i < cmd.names.size(); i++)
-    cmd.command[i] = 0.0;
+  
+  cmd.command[0] = 1.0;
+  cmd.command[1] = 1.0;
+  cmd.command[2] = 1.0;
+  cmd.command[3] = 1.0;
+  cmd.command[4] = 1.0;
+  cmd.command[5] = 1.0;
+  cmd.command[6] = 1.0;
+  
   std::cout<<cmd<<std::endl;
   while(ros::ok()){
     //update cmd.command commands here
     left_cmd_pub.publish(cmd);
+
     ros::spinOnce();
     loop_rate.sleep();
   }

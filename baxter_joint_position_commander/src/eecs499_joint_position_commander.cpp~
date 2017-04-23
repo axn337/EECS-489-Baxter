@@ -21,11 +21,12 @@ int main(int argc, char **argv)
   // set your calculated velocities
   cmd.command.resize(cmd.names.size());
   for(size_t i = 0; i < cmd.names.size(); i++)
-    cmd.command[i] = 0.0;
+    cmd.command[i] = 0.1;
   std::cout<<cmd<<std::endl;
   while(ros::ok()){
     //update cmd.command commands here
     left_cmd_pub.publish(cmd);
+
     ros::spinOnce();
     loop_rate.sleep();
   }

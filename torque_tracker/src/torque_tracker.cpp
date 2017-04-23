@@ -6,10 +6,11 @@ double tourque_exp[7]; //expected torques
 double torque_real[7]; //torque values from sensors
 double torque_err[7];  // error 
 double theta[7]; //position set
+Sensor_msgs::JointState states;//container for most recent robot joint state
 
 
 void myCallback(const sensor_msgs::JointState& joint_torque){ 
-	
+	states = joint_torque;//assign value of received state to robot's current joint state
 	ROS_INFO("torques recieved");
 }
 
@@ -77,12 +78,11 @@ int main(int argc, char **argv)
   ros::init(argc, argv, "torque_tracker");
   ros::NodeHandle n;
   ros::Publisher left_cmd_pub = n.advertise<baxter_core_msgs::JointCommand>("/robot/limb/left/joint_command", 1);
-  ros::Subscriber torque_subscriber = n.subscribe<sensor_msgs/JointState>("/robot/joint_states",1,myCallback);
+  ros::Subscriber torque_subscriber = n.subscribe<sensor_msgs::JointState>("/robot/joint_states",1,myCallback);
 
   // publish at at least 5 Hz, or else Baxter switches back to Position mode and holds position
   ros::Rate loop_rate(100);
   baxter_core_msgs::JointCommand cmd;
-  sensor_msgs::JointState states;
   
   /*/states.mode= sensor_msgs::JointState::effort;
   
