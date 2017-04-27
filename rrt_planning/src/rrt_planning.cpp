@@ -5,10 +5,10 @@
 
 
 //basic include statements for interfacing with ROS and Baxter
-#include<ros/ros.h>
+#include <ros/ros.h>
 #include "baxter_core_msgs/JointCommand.h"
-#include<std_msgs/Float64.h>
-#include<baxter_core_msgs/SEAJointState.h>
+#include <std_msgs/Float64.h>
+//#include <baxter_core_msgs/SEAJointState.h>
 
 //include statements for special functionality used
 #include <iostream>
@@ -17,7 +17,6 @@
 #include <map>
 #include <boost/random.hpp>
 #include <boost/random/normal_distribution.hpp>
-#include <random>
 #include <cmath>
 #include <algorithm>    // std::find
 #include <vector>       // std::vector
@@ -29,9 +28,10 @@ std::vector<std::vector<double> > g_vertices_set; //2-D vectors contains the ver
 //std::vector<std::vector<std::vector<double> > > g_edges_set; //3-dimension vector that contains the set of collision free edges
 int g_number_of_samples=10000;//select number of samples in free workspace
 double g_max_edge_length=0.5;//TODO: select value
-std::std::vector<double> g_vertices_set[0]={0,0,0,0,0,0,0,-1};//initial vertex setting up //g_initial_vertex
-std::std::vector<double> g_trgt_vertex={1,1,1,1,1,1,1};//TODO: put real values
-double trgt_zone=0.2 
+
+std::vector<double> g_initial_vertex;//initial vertex setting up //g_initial_vertex
+std::vector<double> g_trgt_vertex;//TODO: put real values
+double trgt_zone=0.2 ;
 bool g_trgt_reached= false;
 double g_index_counter=1;
 
@@ -41,37 +41,41 @@ void RandomAssignment(std::vector<double> rand_vertex){
 	//a function that assignes a random variable to rand_vertex
 	//TODO: fill up with a random generator code
 
-	const int range_from  = -1.5;//TODO: change the range for each joint seperatly
-    const int range_to    = 1.5;
+	double generator;
 
-    std::random_device                  rand_dev;
-    std::mt19937                        generator(rand_dev());
-    std::uniform_int_distribution<int>  distr(range_from, range_to);
- 
-	for(int i=1; i<8; ++i){
-		if(generator>.95){
-			rand_vertex.push_back(g_trgt_vertex);
+	double range_from[]={-1.5,-1.5,-1.5,-1.5-1.5,-1.5,-1.5};//TODO: change the range for each joint seperatly
+    double range_to[]= {1.5,1.5,1.5,1.5,1.5,1.5,1.5};
+
+
+	for(int i=0; i<7; ++i){
+
+		generator= ((double) rand() / (RAND_MAX));
+
+
+		if(generator>.90){
+			rand_vertex=g_trgt_vertex; 
+			i=7;
 		}
 		else{
-			rand_vertex.push_back(distr(generator));
+			rand_vertex.push_back((range_to[i]-range_from[i])*generator+range_from[i]);
 		}
 	}
 }
 
-std::vector<double>,double NearestVertex(std::vector<double> v){
+double NearestVertex(std::vector<double> vertex){
 	//TODO: fill up
 	//A function that chooses the nearest node in the verteces set
 
-	std::vector<double> nearest= g_vertices_set(0);//Temporary assumbtion in seek of comparison
+	std::vector<double> nearest= g_vertices_set[0];//Temporary assumbtion in seek of comparison
 	double nearest_index=0;
-	for(int i=0; i<g_vertices_set.size; ++i){ //TODO: check g_vertices_set.size, 2-D vector
+	for(int i=0; i<g_vertices_set.size(); ++i){ //TODO: check g_vertices_set.size, 2-D vector
 
-		if(distance(v,g_vertices_set(i))<nearest){
-			nearest=g_vertices_set(i) //replace nearest with the new shortest in distance vertex 
+		if(distance(vertex,g_vertices_set[i])<distance(vertex,nearest)){
+			nearest=g_vertices_set[i]; //replace nearest with the new shortest in distance vertex 
 			nearest_index= (double)i;
 		}
 	}
-	return nearest,nearest_index;
+	return nearest_index;
 }
 
 double distance(std::vector<double> vertex_1, std::vector<double> vertex_2){
@@ -79,7 +83,7 @@ double distance(std::vector<double> vertex_1, std::vector<double> vertex_2){
 	double dist=0;
 
 	for(int i=0; i<7; ++i){
-		dist+=pow(vertex_1(i)-vertex_2(i),2)
+		dist+=pow(vertex_1[i]-vertex_2[i],2);
 	}
 	return sqrt(dist);
 }
@@ -100,7 +104,7 @@ std::vector<double> Steer(std::vector<double> nearest_vertex, std::vector<double
 	else{
 		for(int i=0; i<7; ++i){
 			//calculate coordinates in 7 dimensions
-			steered_vertex.push_back((1-dist_ratio)*nearest_vertex(i)+dist_ratio*rand_vertex(i));
+			steered_vertex.push_back((1-dist_ratio)*nearest_vertex[i]+dist_ratio*rand_vertex[i]);
 		}
 		
 //		steered_vertex.push_back(g_index_counter);
@@ -129,7 +133,7 @@ bool obstacle_free_edge(std::vector<double> new_vertex,std::vector<double> neare
 }
 //finding_path -----------------------------------------------------------------------------
 
-std::vector<std::vector<double> > FindPath(void){
+std::vector<std::vector<double> > FindPath(int p=0){
 	
 	//A function that finds the parent of each vertex starting from the target and moving towards the initial node, and construct a path accordingly 
 
@@ -138,7 +142,7 @@ std::vector<std::vector<double> > FindPath(void){
 
 	//construct reversed path from target to initial vertex
 
-	int i=g_vertices_set.size;
+	int i=g_vertices_set.size();
 
 	do{	
 		path.push_back(g_vertices_set[i]); //adds the parent vertex to the path
@@ -146,7 +150,7 @@ std::vector<std::vector<double> > FindPath(void){
 		i = (int) g_vertices_set[i][7];
 
 	
-	}while(i>-1)
+	}while(i>-1);
 
 	// reverse back the path so that it goes from initial to target vertices
 	std::reverse(path.begin(),path.end());
@@ -172,23 +176,28 @@ int main(int argc, char **argv){
 	ros::Publisher action_publisher = n.advertise<baxter_core_msgs::JointCommand>("/robot/limb/left/joint_command",1);
 
 
-	std::std::vector<double> rand_vertex; //generate random vertex 
-	std::std::vector<double> nearest_vertex; //holds the value of the nearest vertex
+	std::vector<double> rand_vertex; //generate random vertex 
+	std::vector<double> nearest_vertex; //holds the value of the nearest vertex
 	double nearest_index;
-	std::std::vector<double> new_vertex; // steer the vertex with a Max distance
-	std::std::vector<double> path;// contains a set of nodesfrom the goal to the initial pose
+	std::vector<double> new_vertex; // steer the vertex with a Max distance
+	std::vector<std::vector<double> > path;// contains a set of nodesfrom the goal to the initial pose
 
 	
 
 	//spicify initial vertix and add it to the vertices set
 	//std::std::vector<double> initial_vertex=(0,0,0,0,0,0,0);//TODO: put real values
 
-	g_vertices_set.push_back(initial_vertex); // add initial vertex to the vertices set
+ 	double g_initial[]={0,0,0,0,0,0,0,-1};
+	double g_trgt[]={1,1,1,1,1,1,1};
+	g_initial_vertex (g_initial, g_initial + sizeof(g_initial) / sizeof(double) );//initial vertex setting up //g_initial_vertex
+	g_trgt_vertex (g_initial, g_initial + sizeof(g_initial) / sizeof(double) );
+
+	g_vertices_set.push_back(g_initial_vertex); // add initial vertex to the vertices set
 
 	int i=1;
 	do{
 		RandomAssignment(rand_vertex); // assign a random variable to rand_vertex
-		(nearest_vertex,nearest_index)=NearestVertex(rand_vertex); // look for the nearest vertex and its index in g_vertices_set
+		nearest_index=NearestVertex(rand_vertex); // look for the nearest vertex and its index in g_vertices_set
 		new_vertex=Steer(nearest_vertex, rand_vertex); //steer to the maximum edge legnth
 		
 		if(obstacle_free_vertex(new_vertex)&&obstacle_free_edge(new_vertex,nearest_vertex)){
@@ -215,7 +224,7 @@ int main(int argc, char **argv){
 			break;
 		}
 
-	}while(i<g_number_of_samples)
+	}while(i<g_number_of_samples);
 
 	if(g_trgt_reached==false){
 		ROS_INFO("unable to connect to goal");
@@ -223,7 +232,7 @@ int main(int argc, char **argv){
 	}
 
 	//plan the path and store it in "path"
-	path= FindPath();
+	path= FindPath( );
 
 	//path movement execution-------------------------
 
@@ -242,9 +251,9 @@ int main(int argc, char **argv){
 	cmd.command.resize(cmd.names.size());
 
 
-	for(int j=0; j<path.size; j++){
+	for(int j=0; j<path.size(); j++){
 		
-		for(int k=0; k<path[j].size-1;k++){
+		for(int k=0; k<path[j].size()-1;k++){
 			cmd.command[k]=path[j][k];
 		}
 		action_publisher.publish(cmd);
