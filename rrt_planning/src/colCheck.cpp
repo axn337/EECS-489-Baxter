@@ -24,8 +24,6 @@ void check_for_collisions(Eigen::Matrix<float, 4, 4> box_1, Eigen::Matrix<float,
 	Eigen::Matrix<float, 3, 1> Ax;
 	Eigen::Matrix<float, 3, 1> Ay;
 	Eigen::Matrix<float, 3, 1> Az;
-
-	int 
 }
 
 int main(int argc, char** argv) {
