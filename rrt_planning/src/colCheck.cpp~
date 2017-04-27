@@ -20,12 +20,6 @@ void check_for_collisions(Eigen::Matrix<float, 4, 4> box_1, Eigen::Matrix<float,
 	Pa(0,0) = box_1(0, 3);
 	Pa(1,0) = box_1(1, 3);
 	Pa(2,0) = box_1(2, 3);
-
-	Eigen::Matrix<float, 3, 1> Ax;
-	Eigen::Matrix<float, 3, 1> Ay;
-	Eigen::Matrix<float, 3, 1> Az;
-
-	int 
 }
 
 int main(int argc, char** argv) {
