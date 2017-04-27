@@ -1,4 +1,4 @@
-# RRT_planning
+# rrt_planning
 
 Your description goes here
 
