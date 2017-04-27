@@ -1,0 +1,20 @@
+#include<ros/ros.h>
+
+#include <fstream>
+#include <iostream>
+#include <sstream>
+#include <string>
+#include <vector>
+
+#include <Eigen/Eigen>
+#include <Eigen/Dense>
+#include <Eigen/Geometry>
+#include <Eigen/Eigenvalues>
+
+//Eigen Vector3d has a .dot member function
+
+//Matrix<float, 7, 1>
+
+void check_for_collisions(Eigen::Matrix<float, 4, 4> box_1, Eigen::Matrix<float, 4, 4> box_2, Eigen::Matrix<float, 3, 1> extent_1, Eigen::Matrix<float, 3, 1> extent_2){
+	Eigen::Matrix<float, 3, 1> Pa = (box_1(1, 4), box_1(2, 4), box_1(3, 4));
+}
