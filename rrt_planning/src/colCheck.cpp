@@ -12,15 +12,88 @@
 #include <Eigen/Geometry>
 #include <Eigen/Eigenvalues>
 
+#include <math.h>
+
 //Eigen Vector3d has a .dot member function
 
 //Matrix<float, 7, 1>
 
-Eigen::Matrix<float, 4, 4> custom_cum_prod(Eigen::Matrix<float, 4, 4> input_mat, int num_start, int num_end){//TODO: change datatype of input_mat if it is not appropriate
-	//TODO: whatever 'g_temp = eye(4,4);' did
-	for(int i = num_start; i <= num_end){//this searches from num_start to num_end inclusive
-		//TODO: the multiplication step, remembering that c++ indexing starts from 0
-	}
+Eigen::Matrix<float,4,4> forward_kinematics(std::vec<double> angles) {
+	double T1 = angels[0];
+	double T2 = angles[1];
+	double T3 = angles[2];
+	double T4 = angles[3];
+	double T5 = angles[4];
+	double T6 = angles[5];
+	double T7 = angles[6];
+	
+	Eigen::Matrix<float,4,4> joint1 << 	 cos(T1), -1.0*sin(T1),   0,   0,
+										 sin(T1),      cos(T1),   0,   0,
+										       0,            0, 1.0,   0,
+										       0,            0,   0, 1.0;
+	
+	Eigen::Matrix<float,4,4> joint2 << 	 1.0,            0,       0,                                    0,
+										   0,      cos(T2), sin(T2), 0.069 - 0.27*sin(T2) - 0.069*cos(T2),
+										   0, -1.0*sin(T2), cos(T2),  0.069*sin(T2) - 0.27*cos(T2) + 0.27,
+										   0,            0,       0,                                  1.0;
+										
+	Eigen::Matrix<float,4,4> joint3 << 	      cos(T3),   0, sin(T3),       -0.27*sin(T3),
+										            0, 1.0,       0,                   0,
+										 -1.0*sin(T3),   0, cos(T3), 0.27 - 0.27*cos(T3),
+										            0,   0,       0,                 1.0;		
+
+	Eigen::Matrix<float,4,4> joint4 << 	 1.0,            0,       0,                                     0,
+										   0,      cos(T4), sin(T4), 0.433 - 0.201*sin(T4) - 0.433*cos(T4),
+										   0, -1.0*sin(T4), cos(T4), 0.433*sin(T4) - 0.201*cos(T4) + 0.201,
+										   0,            0,       0,                                   1.0;
+
+	Eigen::Matrix<float,4,4> joint5 << 	      cos(T5),   0, sin(T5),        -0.201*sin(T5),
+										            0, 1.0,       0,                     0,
+										 -1.0*sin(T5),   0, cos(T5), 0.201 - 0.201*cos(T5),
+										            0,   0,       0,                   1.0;
+													
+	Eigen::Matrix<float,4,4> joint6 <<	 1.0,            0,       0,                                     0,
+										   0,      cos(T6), sin(T6), 0.808 - 0.191*sin(T6) - 0.808*cos(T6),
+										   0, -1.0*sin(T6), cos(T6), 0.808*sin(T6) - 0.191*cos(T6) + 0.191,
+										   0,            0,       0,                                   1.0;
+
+	Eigen::Matrix<float,4,4> joint7 <<	      cos(T7),   0, sin(T7),        -0.191*sin(T7),
+										            0, 1.0,       0,                     0,
+										 -1.0*sin(T7),   0, cos(T7), 0.191 - 0.191*cos(T7),
+										            0,   0,       0,                   1.0;
+	
+	//Box 1
+	Eigen::Matrix<float,4,4> box1 << 	1, 0, 0, 0,
+										0, 1, 0, 0,
+										0, 0, 1, 0.27035/2,
+										0, 0, 0, 1;
+	Eigen::Matrix<float,3,1> extent_1 << .060, 0.060, 0.27035/2;
+	
+	//Box 2
+	Eigen::Matrix<float,4,4> box2 <<	1, 0, 0, 0,
+										0, 1, 0, 0.069+0.36445/2,
+										0, 0, 1, 0.27035,
+										0, 0, 0, 1;
+	Eigen::Matrix<float,3,1> extent_2 << 0.06, 0.360/2, 0.06;
+	
+
+	//Box 3
+	Eigen::Matrix<float,4,4> box3 <<	1, 0, 0, 0,
+										0, 1, 0, 0.069+0.36435+0.37429/2,
+										0, 0, 1, 0.27035-0.069,
+										0, 0, 0, 1;
+	Eigen::Matrix<float,3,1> extent_3 << 0.06, 0.370/2, 0.06;
+	
+	//Obstacles:
+	Eigen::Matrix<float,4,4> obst1 << 1, 0, 0, 0,
+									  0, 1, 0, 0.069+0.36435+0.37429+.229525/2,
+									  0, 0, 1, 0.27035-0.069-0.01,
+									  0, 0, 0, 1;
+									  
+	Eigen::Matrix<float,3,1> Eobst1 << 0.2,10,10;
+	
+	//Check self collision:
+	
 }
 
 bool check_for_collisions(Eigen::Matrix<float, 4, 4> box_1, Eigen::Matrix<float, 4, 4> box_2, Eigen::Matrix<float, 3, 1> extent_1, Eigen::Matrix<float, 3, 1> extent_2){
