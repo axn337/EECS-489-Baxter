@@ -28,8 +28,8 @@
 
 std::vector<std::vector<double> > g_vertices_set; //2-D vectors contains the verticies in the free work-space
 //std::vector<std::vector<std::vector<double> > > g_edges_set; //3-dimension vector that contains the set of collision free edges
-int g_number_of_samples=1000;//select number of samples in free workspace
-double g_max_edge_length=0.1;//TODO: select value
+int g_number_of_samples=10000;//select number of samples in free workspace
+double g_max_edge_length=0.08;//TODO: select value
 
 std::vector<double> g_initial_vertex;//initial vertex setting up //g_initial_vertex
 std::vector<double> g_trgt_vertex;//TODO: put real values
@@ -159,12 +159,18 @@ std::vector<std::vector<double> > FindPath(){
 		path.push_back(g_vertices_set[i]); //adds the parent vertex to the path
 
 		//ROS_INFO("%d- element number %f added to path ",j,i);
-
+		
 		i=  g_vertices_set[i-1][7];
 		j++;
 
 	
 	}while(i>-1);
+
+	path.push_back(g_trgt_vertex);
+	path[j-1].push_back(3);
+	path.push_back(g_trgt_vertex);
+	path[j].push_back(3);
+	
 
 	// reverse back the path so that it goes from initial to target vertices
 	std::reverse(path.begin(),path.end());
@@ -226,13 +232,12 @@ int main(int argc, char **argv){
 			loop_rate.sleep();
 
 	}
-	//TODO: we need to wait until the execution of the movement
 
 	//spicify initial and trgt vertix and add it to the vertices set
 
 	for(int i=0;i<7;i++){
 		g_initial_vertex.push_back(0);
-		g_trgt_vertex.push_back(1);
+		g_trgt_vertex.push_back(1.2);
 	}
 	g_initial_vertex.push_back(-1);
  	//double g_initial[]={0,0,0,0,0,0,0,-1};
@@ -258,7 +263,7 @@ int main(int argc, char **argv){
 			//g_edges_set[1].push_back(nearest_vertex); 
 
 			//optional: AddGraph(new_vertex,nearest_vertex) a function that visually present the RRT process
-			ROS_INFO("New node= %f %f %f %f %f %f %f %f",g_vertices_set[i][0],g_vertices_set[i][1],g_vertices_set[i][2],g_vertices_set[i][3],g_vertices_set[i][4],g_vertices_set[i][5],g_vertices_set[i][6],g_vertices_set[i][7]);
+			//ROS_INFO("New node= %f %f %f %f %f %f %f %f",g_vertices_set[i][0],g_vertices_set[i][1],g_vertices_set[i][2],g_vertices_set[i][3],g_vertices_set[i][4],g_vertices_set[i][5],g_vertices_set[i][6],g_vertices_set[i][7]);
 
 			i++; // increase the counter only when the new edge and vertex are added. If not repeat the loop.
 		}
@@ -290,17 +295,19 @@ int main(int argc, char **argv){
 	//path movement execution-------------------------
 
 
-	for(int j=0; j<path.size(); j++){
-		
+	for(int j=1; j<path.size(); j++){
+		ROS_INFO("path node = %f %f %f %f %f %f %f",g_vertices_set[j][0],g_vertices_set[j][1],g_vertices_set[j][2],g_vertices_set[j][3],g_vertices_set[j][4],g_vertices_set[j][5],g_vertices_set[j][6]);
 		for(int k=0; k<path[j].size()-1;k++){ //to avoid parent index		
 	
 			cmd.command[k]=path[j][k];
 		}
-		ROS_INFO("visit location number %d in path",j+1);
+		//ROS_INFO("visit location number %d in path",j+1);
+	
+
 		start = ros::Time::now();
-		while((ros::Time::now() - start) < ros::Duration(1)) {
+		while((ros::Time::now() - start) < ros::Duration(0.1)) {
 			action_publisher.publish(cmd);
-			ros::spinOnce();
+			//ros::spinOnce();
 			loop_rate.sleep();
 
 		}
