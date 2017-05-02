@@ -61,16 +61,30 @@ void RandomAssignment(std::vector<double> rand_vertex){
 		}
 	}
 }
+double v_distance(std::vector<double> vertex_1, std::vector<double> vertex_2){
+	//a function that takes two verteces and return the distance between them
+	double dist=0;
 
+	for(int i=0; i<7; i++){
+		dist+=pow(vertex_1[i]-vertex_2[i],2);
+	}
+	return sqrt(dist);
+}
 double NearestVertex(std::vector<double> vertex){
 	//TODO: fill up
 	//A function that chooses the nearest node in the verteces set
 
 	std::vector<double> nearest= g_vertices_set[0];//Temporary assumbtion in seek of comparison
 	double nearest_index=0;
-	for(int i=0; i<g_vertices_set.size(); ++i){ //TODO: check g_vertices_set.size, 2-D vector
+	double distance_1;
+	double distance_2;
 
-		if(distance(vertex,g_vertices_set[i])<distance(vertex,nearest)){
+	for(int i=1; i<g_vertices_set.size(); i++){ //TODO: check g_vertices_set.size, 2-D vector
+		
+		distance_1=v_distance(vertex,g_vertices_set[0]);
+		distance_2=v_distance(vertex,nearest);
+
+		if(distance_1<distance_2){
 			nearest=g_vertices_set[i]; //replace nearest with the new shortest in distance vertex 
 			nearest_index= (double)i;
 		}
@@ -78,21 +92,14 @@ double NearestVertex(std::vector<double> vertex){
 	return nearest_index;
 }
 
-double distance(std::vector<double> vertex_1, std::vector<double> vertex_2){
-	//a function that takes two verteces and return the distance between them
-	double dist=0;
 
-	for(int i=0; i<7; ++i){
-		dist+=pow(vertex_1[i]-vertex_2[i],2);
-	}
-	return sqrt(dist);
-}
 
-std::vector<double> Steer(std::vector<double> nearest_vertex, std::vector<double> rand_vertex){
+std::vector<double> Steer(double nearest_index, std::vector<double> rand_vertex){
 	//returns a node in the same direction  of the random_vertex, but with a maximum distance from the nearest vertex
 
 	//TODO: Check calculation
-	double current_dist=distance(nearest_vertex,rand_vertex);// distance btw nearest_vertex and rand_vertex
+	std::vector<double> nearest_vertex= g_vertices_set[nearest_index];
+	double current_dist=v_distance(nearest_vertex,rand_vertex);// distance btw nearest_vertex and rand_vertex
 	double dist_ratio= g_max_edge_length/current_dist; // ratio btw maximum edge lenght and current_dist
 	std::vector<double> steered_vertex; 
 
@@ -123,7 +130,7 @@ bool obstacle_free_vertex(std::vector<double> new_vertex){
 
 }
 
-bool obstacle_free_edge(std::vector<double> new_vertex,std::vector<double> nearest_vertex){
+bool obstacle_free_edge(std::vector<double> new_vertex,double nearest_index){
 	//The purpose of this function is to return true if the edge is in obsticle free ws
 	//and false otherwise
 	//TODO: fill up
@@ -177,20 +184,25 @@ int main(int argc, char **argv){
 
 
 	std::vector<double> rand_vertex; //generate random vertex 
-	std::vector<double> nearest_vertex; //holds the value of the nearest vertex
+	//std::vector<double> nearest_vertex; //holds the value of the nearest vertex
 	double nearest_index;
 	std::vector<double> new_vertex; // steer the vertex with a Max distance
 	std::vector<std::vector<double> > path;// contains a set of nodesfrom the goal to the initial pose
 
 	
 
-	//spicify initial vertix and add it to the vertices set
-	//std::std::vector<double> initial_vertex=(0,0,0,0,0,0,0);//TODO: put real values
+	//spicify initial and trgt vertix and add it to the vertices set
 
- 	double g_initial[]={0,0,0,0,0,0,0,-1};
-	double g_trgt[]={1,1,1,1,1,1,1};
-	g_initial_vertex (g_initial, g_initial + sizeof(g_initial) / sizeof(double) );//initial vertex setting up //g_initial_vertex
-	g_trgt_vertex (g_initial, g_initial + sizeof(g_initial) / sizeof(double) );
+	for(int i=0;i<7;i++){
+		g_initial_vertex.push_back(0);
+		g_trgt_vertex.push_back(1);
+	}
+	g_initial_vertex.push_back(-1);
+ 	//double g_initial[]={0,0,0,0,0,0,0,-1};
+	//double g_trgt[]={1,1,1,1,1,1,1};
+
+	//g_initial_vertex (g_initial, g_initial + sizeof(g_initial) / sizeof(double) );//initial vertex setting up //g_initial_vertex
+	//g_trgt_vertex (g_initial, g_initial + sizeof(g_initial) / sizeof(double) );
 
 	g_vertices_set.push_back(g_initial_vertex); // add initial vertex to the vertices set
 
@@ -198,9 +210,9 @@ int main(int argc, char **argv){
 	do{
 		RandomAssignment(rand_vertex); // assign a random variable to rand_vertex
 		nearest_index=NearestVertex(rand_vertex); // look for the nearest vertex and its index in g_vertices_set
-		new_vertex=Steer(nearest_vertex, rand_vertex); //steer to the maximum edge legnth
+		new_vertex=Steer(nearest_index, rand_vertex); //steer to the maximum edge legnth
 		
-		if(obstacle_free_vertex(new_vertex)&&obstacle_free_edge(new_vertex,nearest_vertex)){
+		if(obstacle_free_vertex(new_vertex)&&obstacle_free_edge(new_vertex,nearest_index)){
 			g_vertices_set.push_back(new_vertex); //add new_vertex to the vertices set
 			g_vertices_set[i].push_back(nearest_index); //add the index of the parent
 			//g_edges_set[0].push_back(new_vertex); //add the new edge to the edges set.
@@ -218,7 +230,7 @@ int main(int argc, char **argv){
 
 		ROS_INFO("number of particles accepted=%f",g_index_counter+1);
 
-		if(distance(new_vertex, g_trgt_vertex)<trgt_zone){
+		if(v_distance(new_vertex, g_trgt_vertex)<trgt_zone){
 			g_trgt_reached=true; 
 			ROS_INFO("RRT reached goal");
 			break;
