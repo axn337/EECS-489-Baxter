@@ -18,6 +18,8 @@
 #include <boost/random.hpp>
 #include <boost/random/normal_distribution.hpp>
 #include <cmath>
+#include <complex>
+#include <valarray>
 #include <algorithm>    // std::find
 #include <vector>       // std::vector
 
@@ -64,10 +66,17 @@ void RandomAssignment(std::vector<double> rand_vertex){
 double v_distance(std::vector<double> vertex_1, std::vector<double> vertex_2){
 	//a function that takes two verteces and return the distance between them
 	double dist=0;
+	ROS_INFO("dist 1");
 
 	for(int i=0; i<7; i++){
-		dist+=pow(vertex_1[i]-vertex_2[i],2);
+					ROS_INFO("size1 %d size2 %d",vertex_1.size(),vertex_2.size() );
+
+		dist+=pow((vertex_1[i]-vertex_2[i]),2);
+		
+			ROS_INFO("dist 2");
+
 	}
+	
 	return sqrt(dist);
 }
 double NearestVertex(std::vector<double> vertex){
@@ -99,9 +108,20 @@ std::vector<double> Steer(double nearest_index, std::vector<double> rand_vertex)
 
 	//TODO: Check calculation
 	std::vector<double> nearest_vertex= g_vertices_set[nearest_index];
-	double current_dist=v_distance(nearest_vertex,rand_vertex);// distance btw nearest_vertex and rand_vertex
+			ROS_INFO("steer 1");
+
+	double current_dist=0;// distance btw nearest_vertex and rand_vertex
+		ROS_INFO("steer 2");
+		
+	ROS_INFO("size1 %d size2 %d",nearest_vertex.size(),rand_vertex.size() );
+
+
+	current_dist=v_distance(nearest_vertex,rand_vertex);
+	ROS_INFO("steer 3");
+
 	double dist_ratio= g_max_edge_length/current_dist; // ratio btw maximum edge lenght and current_dist
 	std::vector<double> steered_vertex; 
+	ROS_INFO("steer 4");
 
 	if(dist_ratio>1){
 //		rand_vertex.push_back(g_index_counter);
@@ -208,10 +228,14 @@ int main(int argc, char **argv){
 
 	int i=1;
 	do{
+
 		RandomAssignment(rand_vertex); // assign a random variable to rand_vertex
+
 		nearest_index=NearestVertex(rand_vertex); // look for the nearest vertex and its index in g_vertices_set
+					ROS_INFO("loc 1");
+
 		new_vertex=Steer(nearest_index, rand_vertex); //steer to the maximum edge legnth
-		
+
 		if(obstacle_free_vertex(new_vertex)&&obstacle_free_edge(new_vertex,nearest_index)){
 			g_vertices_set.push_back(new_vertex); //add new_vertex to the vertices set
 			g_vertices_set[i].push_back(nearest_index); //add the index of the parent
@@ -237,11 +261,13 @@ int main(int argc, char **argv){
 		}
 
 	}while(i<g_number_of_samples);
+	ROS_INFO("loc 3");
 
 	if(g_trgt_reached==false){
 		ROS_INFO("unable to connect to goal");
 		return 0;
 	}
+	ROS_INFO("loc 4");
 
 	//plan the path and store it in "path"
 	path= FindPath( );
@@ -261,6 +287,7 @@ int main(int argc, char **argv){
 	cmd.names.push_back("left_w2");
       
 	cmd.command.resize(cmd.names.size());
+	ROS_INFO("loc 5");
 
 
 	for(int j=0; j<path.size(); j++){
