@@ -18,7 +18,7 @@
 
 //Matrix<float, 7, 1>
 
-Eigen::Matrix<float,4,4> forward_kinematics(std::vec<double> angles) {
+bool colCheck(std::vec<double> angles) {
 	double T1 = angels[0];
 	double T2 = angles[1];
 	double T3 = angles[2];
@@ -31,6 +31,7 @@ Eigen::Matrix<float,4,4> forward_kinematics(std::vec<double> angles) {
 										 sin(T1),      cos(T1),   0,   0,
 										       0,            0, 1.0,   0,
 										       0,            0,   0, 1.0;
+	
 	
 	Eigen::Matrix<float,4,4> joint2 << 	 1.0,            0,       0,                                    0,
 										   0,      cos(T2), sin(T2), 0.069 - 0.27*sin(T2) - 0.069*cos(T2),
@@ -61,6 +62,8 @@ Eigen::Matrix<float,4,4> forward_kinematics(std::vec<double> angles) {
 										            0, 1.0,       0,                     0,
 										 -1.0*sin(T7),   0, cos(T7), 0.191 - 0.191*cos(T7),
 										            0,   0,       0,                   1.0;
+													
+										
 	
 	//Box 1
 	Eigen::Matrix<float,4,4> box1 << 	1, 0, 0, 0,
@@ -84,6 +87,13 @@ Eigen::Matrix<float,4,4> forward_kinematics(std::vec<double> angles) {
 										0, 0, 0, 1;
 	Eigen::Matrix<float,3,1> extent_3 << 0.06, 0.370/2, 0.06;
 	
+	//Box 4
+	Eigen::Matrix<float,4,4> box4 << 	1, 0, 0, 0,
+										0, 1, 0, 0.069+0.36435+0.37429+.229525/2,
+										0, 0, 1, 0.27035-0.069-0.01,
+										0, 0, 0, 1;
+	Eigen::Matrix<float,3,1> extent_4 << 0.06, 0.220/2, 0.06;
+	
 	//Obstacles:
 	Eigen::Matrix<float,4,4> obst1 << 1, 0, 0, 0,
 									  0, 1, 0, 0.069+0.36435+0.37429+.229525/2,
@@ -93,6 +103,34 @@ Eigen::Matrix<float,4,4> forward_kinematics(std::vec<double> angles) {
 	Eigen::Matrix<float,3,1> Eobst1 << 0.2,10,10;
 	
 	//Check self collision:
+	rotatedBox1 = joint1*box1;
+	rotatedBox2 = joint1*joint2*joint3*box2;
+	rotatedBox3 = joint1*joint2*joint3*joint4*joint5*box3;
+	rotatedBox4 = joint1*joint2*joint3*joint4*joint5*joint6*joint7*box4;
+	
+	Eigen::Matrix<float,4,4,4> rotatedArms << rotatedBox1,rotatedBox2,rotatedBox3,rotatedBox4;
+	Eigen::Matrix<float,3,1,4> armExtents << extent_1,extent_2,extent_3,extent_4;
+	
+	bool leave = false;
+	for (int i = 0; i < 4; i ++) {
+		Eigen::Matrix<float,4,4> selfBlock << rotatedArms.block<4,4>(0,0,i);
+		Eigen::Matrix<float,3,1> selfExtent << armExtents.block<3,1>(0,0,i);
+		for (int i1 = i+1; int i1 < 4; i1 ++) {
+			Eigen::Matrix<float,4,4> checkingBlock << rotatedArms.block<4,4>(0,0,i1);
+			Eigen::Matrix<float,3,1> checkingExtent << armExtents.block<3,1>(0,0,i1);
+			leave = check_for_collisions(selfBlock, checkingBlock, selfExtent, checkingExtent);
+			if (leave == true) {
+				return true;
+			}
+		}
+		
+		//Collision check:
+		leave = check_for_collisions(selfBlock, obst1, selfExtent, Eobst1);
+		if (leave == true) {
+			return true;
+		}
+	}
+	
 	
 }
 
