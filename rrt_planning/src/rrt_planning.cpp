@@ -5,23 +5,33 @@
 
 
 //basic include statements for interfacing with ROS and Baxter
-#include <ros/ros.h>
+#include <algorithm>    // std::find
 #include "baxter_core_msgs/JointCommand.h"
-#include <std_msgs/Float64.h>
 //#include <baxter_core_msgs/SEAJointState.h>
-
-//include statements for special functionality used
-#include <iostream>
-#include <iomanip>
-#include <string>
-#include <map>
 #include <boost/random.hpp>
 #include <boost/random/normal_distribution.hpp>
 #include <cmath>
 #include <complex>
+#include <Eigen/Eigen>
+#include <Eigen/Dense>
+#include <Eigen/Geometry>
+#include <Eigen/Eigenvalues>
+#include <fstream>
+#include <iostream>
+#include <iomanip>
+#include <map>
+#include <math.h>
+
+#include <ros/ros.h>
+#include <std_msgs/Float64.h>
+#include <string>
+#include <sstream>
+#include <string>
+#include <stdlib.h>     /* abs */
 #include <valarray>
-#include <algorithm>    // std::find
-#include <vector>       // std::vector
+#include <vector>
+
+
 
 
 //global variables:----------------------------------------------------------------------
@@ -29,13 +39,12 @@
 std::vector<std::vector<double> > g_vertices_set; //2-D vectors contains the verticies in the free work-space
 //std::vector<std::vector<std::vector<double> > > g_edges_set; //3-dimension vector that contains the set of collision free edges
 int g_number_of_samples=10000;//select number of samples in free workspace
-double g_max_edge_length=0.08;//TODO: select value
+double g_max_edge_length=0.01;//TODO: select value
 
 std::vector<double> g_initial_vertex;//initial vertex setting up //g_initial_vertex
 std::vector<double> g_trgt_vertex;//TODO: put real values
 double trgt_zone=0.01 ;
 bool g_trgt_reached= false;
-//double g_index_counter=1;
 
 
 //RRT_Functions-------------------------------------------------------------------------------
@@ -111,9 +120,14 @@ std::vector<double> Steer(double nearest_index, std::vector<double> rand_vertex)
 		return rand_vertex;
 	}
 	else{
+		std::vector<double> difference_vector;
 		for(int i=0; i<7; ++i){
 			//calculate coordinates in 7 dimensions
-			steered_vertex.push_back((1-dist_ratio)*nearest_vertex[i]+dist_ratio*rand_vertex[i]);
+			difference_vector.push_back(rand_vertex[i] - nearest_vertex[i]);
+			difference_vector[i] *= dist_ratio;
+		}
+		for(int i=0; i<7; i++){
+			steered_vertex.push_back(nearest_vertex[i] + difference_vector[i]);
 		}
 		
 //		steered_vertex.push_back(g_index_counter);
@@ -121,24 +135,22 @@ std::vector<double> Steer(double nearest_index, std::vector<double> rand_vertex)
 		return steered_vertex;
 	}
 }
-
+//collision check function ------------------------------------------------
 
 bool obstacle_free_vertex(std::vector<double> new_vertex){
 	//The purpose of this function is to return true if new_vertex is in obsticle free ws
 	//and false otherwise
+	
 	//TODO: fill up
 	//get code from Tony
 	return true;
 
 }
 
-bool obstacle_free_edge(std::vector<double> new_vertex,double nearest_index){
-	//The purpose of this function is to return true if the edge is in obsticle free ws
-	//and false otherwise
-	//TODO: fill up
-	//get code from Tony
-	return true;
 
+bool obstacle_free_edge(std::vector<double> new_vertex,double nearest_index){
+
+	return true;
 }
 //finding_path -----------------------------------------------------------------------------
 
@@ -152,7 +164,7 @@ std::vector<std::vector<double> > FindPath(){
 
 	//construct reversed path from target to initial vertex
 
-	double i=g_vertices_set.size();
+	double i=g_vertices_set.size()-1;
 	int j=1;
 
 	do{	
@@ -160,22 +172,19 @@ std::vector<std::vector<double> > FindPath(){
 
 		//ROS_INFO("%d- element number %f added to path ",j,i);
 		
-		i=  g_vertices_set[i-1][7];
+		i=  g_vertices_set[i][7];
 		j++;
 
 	
 	}while(i>-1);
 
-	path.push_back(g_trgt_vertex);
-	path[j-1].push_back(3);
-	path.push_back(g_trgt_vertex);
-	path[j].push_back(3);
 	
 
 	// reverse back the path so that it goes from initial to target vertices
 	std::reverse(path.begin(),path.end());
 
 	ROS_INFO("Path generated with %d vertices", path.size());
+
 
 	return path;
 
@@ -202,7 +211,7 @@ int main(int argc, char **argv){
 	std::vector<double> new_vertex; // steer the vertex with a Max distance
 	std::vector<std::vector<double> > path;// contains a set of nodesfrom the goal to the initial pose
 	ros::Time start = ros::Time::now();
-	ros::Rate loop_rate(100);
+	ros::Rate loop_rate(80);
   	baxter_core_msgs::JointCommand cmd;
 
 	cmd.mode = baxter_core_msgs::JointCommand::POSITION_MODE;
@@ -218,13 +227,15 @@ int main(int argc, char **argv){
 	cmd.command.resize(cmd.names.size());
 
 	//command an initial motion to 0, then wait 5 seconds
-	cmd.command[0] = 0;
-	cmd.command[1] = 0;
-	cmd.command[2] = 0;
-	cmd.command[3] = 0;
-	cmd.command[4] = 0;
-	cmd.command[5] = 0;
-	cmd.command[6] = 0;
+	cmd.command[0] = 1.2;
+	cmd.command[1] = 1.2;
+	cmd.command[2] = 1.2;
+	cmd.command[3] = 1.2;
+	cmd.command[4] = 1.2;
+	cmd.command[5] = 1.2;
+	cmd.command[6] = 1.2;
+	
+	ROS_INFO("moving to initial pose");
 
 	while((ros::Time::now() - start) < ros::Duration(1)) {
 			action_publisher.publish(cmd);
@@ -234,10 +245,13 @@ int main(int argc, char **argv){
 	}
 
 	//spicify initial and trgt vertix and add it to the vertices set
+	ros::Duration(1);
+	
+	ROS_INFO("calculating RRT");
 
 	for(int i=0;i<7;i++){
-		g_initial_vertex.push_back(0);
-		g_trgt_vertex.push_back(1.2);
+		g_initial_vertex.push_back(1.2);
+		g_trgt_vertex.push_back(0.0);
 	}
 	g_initial_vertex.push_back(-1);
  	//double g_initial[]={0,0,0,0,0,0,0,-1};
@@ -275,43 +289,49 @@ int main(int argc, char **argv){
 
 		if(v_distance(new_vertex, g_trgt_vertex)<trgt_zone){
 			g_trgt_reached=true; 
+				
+
 			ROS_INFO("RRT reached goal");
+			ros::Duration(1);
 			break;
 		}
 
 	}while(i<g_number_of_samples);
 
-	ROS_INFO("number of vertices accepted=%d",g_vertices_set.size());
+	ROS_INFO("number of vertices in vertices_set =%d",g_vertices_set.size());
 
-	
+	ros::Duration(1);
 	if(g_trgt_reached==false){
 		ROS_INFO("unable to connect to goal");
 		return 0;
 	}
+	
+	ROS_INFO("finding path..");
 	//plan the path and store it in "path"
 	path= FindPath( );
-
+	ros::Duration(1);
 
 	//path movement execution-------------------------
+	ROS_INFO("moving to goal");
+	ros::Duration(3);
 
-
-	for(int j=1; j<path.size(); j++){
-		ROS_INFO("path node = %f %f %f %f %f %f %f",g_vertices_set[j][0],g_vertices_set[j][1],g_vertices_set[j][2],g_vertices_set[j][3],g_vertices_set[j][4],g_vertices_set[j][5],g_vertices_set[j][6]);
+	for(int j=1; j<path.size()-1; j++){
+		//ROS_INFO("path node %d= %f %f %f %f %f %f %f",j,path[j][0],path[j][1],path[j][2],path[j][3],path[j][4],path[j][5],path[j][6]);
+		
 		for(int k=0; k<path[j].size()-1;k++){ //to avoid parent index		
-	
+			//ROS_WARN("k=%d",k);
 			cmd.command[k]=path[j][k];
 		}
 		//ROS_INFO("visit location number %d in path",j+1);
 	
 
 		start = ros::Time::now();
-		while((ros::Time::now() - start) < ros::Duration(0.1)) {
+		while((ros::Time::now() - start) < ros::Duration(0.05)) {
 			action_publisher.publish(cmd);
 			//ros::spinOnce();
 			loop_rate.sleep();
 
 		}
-		//TODO: we need to wait until the execution of the movement
 	}
 	
 
