@@ -408,7 +408,7 @@ bool obstacle_free_vertex(std::vector<double> angles) {
 							0, 0, 0, 1;
 	Eigen::Matrix<double,3,1> extent_1;
 				//extent_1 << .060, 0.060, 0.27035/2-0.05;
-				extent_1 << 0.0, 0.0, 0.0;
+				extent_1 << .060, 0.060, 0.27035/2;
 	
 	//Box 2
 	Eigen::Matrix<double,4,4> box2;
@@ -417,7 +417,7 @@ bool obstacle_free_vertex(std::vector<double> angles) {
 							0, 0, 1, 0.27035,
 							0, 0, 0, 1;
 	Eigen::Matrix<double,3,1> extent_2;
-				extent_2 << 0.06, 0.27/2-0.05, 0.06;
+				extent_2 << 0.06, 0.360/2-0.1, 0.06;
 				//extent_2 << 0.0, 0.0, 0.0;
 	
 
@@ -428,7 +428,7 @@ bool obstacle_free_vertex(std::vector<double> angles) {
 							0, 0, 1, 0.27035-0.069,
 							0, 0, 0, 1;
 	Eigen::Matrix<double,3,1> extent_3;
-				extent_3 << 0.06, 0.370/2-0.05, 0.06;
+				extent_3 << 0.06, 0.370/2-0.1, 0.06;
 				//extent_3 << 0.0, 0.0, 0.0;
 	
 	//Box 4
@@ -438,18 +438,18 @@ bool obstacle_free_vertex(std::vector<double> angles) {
 								0, 0, 1, 0.27035-0.069-0.01,
 								0, 0, 0, 1;
 	Eigen::Matrix<double,3,1> extent_4;
-				extent_4 << 0.06, 0.20/2-0.05, 0.06;
+				extent_4 << 0.06, 0.220/2-0.1, 0.06;
 				//extent_4 << 0.0, 0.0, 0.0;
 	
 	//Obstacles:
 	Eigen::Matrix<double,4,4> obst1; 
-				 obst1	<< 	1, 0, 0, 0,
-							0, 1, 0, 20,
+				 obst1	<< 	1, 0, 0, 0.4,
+							0, 1, 0, 0.4,
 							0, 0, 1, 0,
 							0, 0, 0, 1;
 									  
 	Eigen::Matrix<double,3,1> Eobst1;
-				 Eobst1	 << 0.5, 0.01, 0.05;
+				 Eobst1	 << 0.05,1,1;
 				//Eobst1 << 0.0, 0.0, 0.0;
 	
 	//Check self collision:
@@ -479,17 +479,15 @@ bool obstacle_free_vertex(std::vector<double> angles) {
 	for (int i = 0; i < 4; i ++) {
 		Eigen::Matrix<double,4,4> selfBlock;
 		selfBlock << rotatedArms[i];
-		//selfBlock << rotatedArms.block<4,4,1>(0,0,i);
 		Eigen::Matrix<double,3,1> selfExtent;
 		selfExtent << armExtents[i];
-		//selfExtent << armExtents.block<3,1,1>(0,0,i);
 		for (int i1 = i+1; i1 < 4; i1 ++) {
 			Eigen::Matrix<double,4,4> checkingBlock;
 			checkingBlock << rotatedArms[i1];
-			//checkingBlock << rotatedArms.block<4,4>(0,0,i1);
+			
 			Eigen::Matrix<double,3,1> checkingExtent;
 			checkingExtent << armExtents[i1];
-			//checkingExtent << armExtents.block<3,1>(0,0,i1);
+			
 			leave = check_for_collisions(selfBlock, checkingBlock, selfExtent, checkingExtent);
 			if (leave == true) {
 				//ROS_WARN("BLOCK %d AND %d",i,i1);
